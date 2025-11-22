@@ -1,52 +1,32 @@
-# Quorum
+# Quorum Monorepo
 
-A multi-user collaborative platform for discussions between humans and AI agents. Think Slack/Discord, but every participant can be a human or an AI with its own personality and expertise.
+A Slack-like desktop application for discussions between humans and AIs, built with NX monorepo architecture.
 
-![Quorum](https://img.shields.io/badge/status-beta-blue)
-![Electron](https://img.shields.io/badge/electron-28.3-blue)
-![React](https://img.shields.io/badge/react-18.3-blue)
+## Project Structure
 
-## ✨ Features
+This is an NX monorepo (`@quorum/nx`) containing:
 
-### 🔐 Multi-User Authentication
-- User accounts with secure authentication
-- Session-based login with 30-day persistence
-- Password hashing with scrypt
+### Applications
 
-### 🏢 Server/Workspace System
-- Create unlimited servers (workspaces)
-- Public servers (anyone can join) or private (invite-only)
-- Invite codes with optional expiration and usage limits
-- Cross-server channel sharing
-- Role-based permissions (owner, admin, member)
+- **apps/electron** (`@quorum/electron`) - Electron desktop application
+- **apps/api** (`@quorum/api`) - Express.js REST API backend
+- **apps/web** (`@quorum/web`) - Astro marketing/documentation website
 
-### 🤖 AI Integration
-- **Multiple AI Providers** - OpenAI (GPT-4o, GPT-4o-mini) and Anthropic (Claude Sonnet, Haiku)
-- **Per-AI API Keys** - Each AI member uses its own encrypted API key
-- **Custom Personas** - Give each AI a unique role and personality
-- **@Mention Activation** - AIs only respond when explicitly tagged
+### Shared Libraries
 
-### 💬 Advanced Messaging
-- **@Mentions** - Tag users and AIs (like Discord/Slack)
-- **Reply Threads** - Reply to any message to create conversation threads
-- **Real-Time Updates** - Messages appear instantly
-- **Auto Summaries** - Background conversation summarization
+- **libs/components** (`@quorum/components`) - Shared React components (Button, Card, Badge, etc.)
+- **libs/eslint-config** (`@quorum/eslint-config`) - Shared ESLint configuration
+- **libs/prettier-config** (`@quorum/prettier-config`) - Shared Prettier configuration
+- **libs/tailwind-config** (`@quorum/tailwind-config`) - Shared Tailwind CSS configuration
+- **libs/tsconfig** (`@quorum/tsconfig`) - Shared TypeScript configurations
 
-### 🎤 Voice Features (Optional)
-- **Speech-to-Text** - Deepgram integration for voice input
-- **Text-to-Speech** - Deepgram and ElevenLabs for vocalized responses
-
-### ⚡ Smart Processing
-- **Provider-Level Queuing** - Respects API rate limits
-- **Concurrent Rooms** - Multiple rooms can have active discussions
-- **Parallel Processing** - Different AI providers process in parallel
-
-## 🚀 Quick Start
+## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ and pnpm
-- PostgreSQL 12+
+- Node.js (v18 or higher)
+- pnpm (v8 or higher)
+- PostgreSQL database (for Electron app)
 
 ### Installation
 
@@ -54,256 +34,220 @@ A multi-user collaborative platform for discussions between humans and AI agents
 # Install dependencies
 pnpm install
 
-# Generate encryption key for API key storage
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+# Set up environment variables
+# Copy example.env to .env in apps/electron and configure it
+cp apps/electron/example.env apps/electron/.env
 
-# Configure environment
-cp example.env .env
-# Edit .env and set your ENCRYPTION_KEY and database credentials
+# Copy example.env to .env in apps/api and configure it (optional)
+cp apps/api/example.env apps/api/.env
 
-# Set up database
-createdb quorum
-npm run db:migrate
-
-# Start the app
-npm run dev
+# Run database migrations (for Electron app)
+pnpm db:migrate
 ```
 
-### First Run
+## Available Commands
 
-1. **Sign Up** - Create your account
-2. **Create Server** - Set up your first workspace
-3. **Create Room** - Add a discussion channel
-4. **Add AI Member** - Provide an API key for OpenAI or Anthropic
-5. **Start Chatting** - @mention the AI to get a response!
+### Development
 
-## 📖 How It Works
+- `pnpm dev:all` - Start all applications in parallel
+- `pnpm dev:electron` - Start the Electron app only
+- `pnpm dev:api` - Start the API server only
+- `pnpm dev:web` - Start the Astro website only
 
-### Traditional Flow (Most Apps)
-```
-User → Message → All AIs respond automatically
-```
+### Building
 
-### Quorum Flow
-```
-User → "Hey @GPT4 what do you think?" → Only GPT4 responds
-User → "What about you @Claude?" → Only Claude responds
-User → "@GPT4 @Claude discuss this" → Both respond to the message
-```
+- `pnpm build` - Build all applications
+- `pnpm build:electron` - Build the Electron app
+- `pnpm build:api` - Build the API server
+- `pnpm build:web` - Build the Astro website
 
-### Example Use Case
+### Other Commands
 
-Create a "Product Strategy" room with three AI members:
+- `pnpm preview:web` - Preview the built Astro website
+- `pnpm start:api` - Start the API server in production mode
+- `pnpm package:electron` - Package the Electron app for distribution
+- `pnpm db:migrate` - Run database migrations
+- `pnpm graph` - Visualize the project dependency graph
+- `pnpm reset` - Clear NX cache
 
-- **@Sarah** (Product Manager, using your OpenAI key) - Focuses on user value
-- **@Alex** (Technical Architect, using team OpenAI key) - Considers implementation  
-- **@Jamie** (Devil's Advocate, using Anthropic key) - Challenges assumptions
+## Apps
 
-Ask: "@Sarah @Alex @Jamie should we build feature X?"
+### Electron App (`apps/electron`)
 
-Each AI responds with their unique perspective, creating a multi-viewpoint discussion.
+**@quorum/electron** - The main desktop application
 
-## 🏗️ Architecture
+**Tech Stack:**
 
-### Polymorphic Member System
+- Electron
+- React + TypeScript
+- Vite
+- Tailwind CSS
+- PostgreSQL
 
-Both users and AIs are treated as "members":
+**Port:** N/A (Desktop app)
 
-```sql
--- Messages use polymorphic references
-member_type: 'user' | 'ai'
-member_id: references users.id OR ai_members.id
-```
+See [apps/electron/README.md](./apps/electron/README.md) for more details.
 
-This unified approach simplifies:
-- Message handling
-- @Mention system
-- Reply threading
-- Permission checks
+### API Server (`apps/api`)
 
-### Mention Tag System
+**@quorum/api** - REST API backend server
 
-Mentions use internal tags for reliability:
+**Tech Stack:**
 
-**What you type**: `@JohnDoe what's up?`  
-**Stored in DB**: `<@user:123> what's up?`  
-**Displayed in UI**: `@JohnDoe what's up?`
+- Express.js
+- TypeScript
+- tsx (for development)
 
-Benefits:
-- ✅ Mentions survive name changes
-- ✅ Unique identification
-- ✅ Easy to parse and highlight
-- ✅ Works like Discord/Slack
+**Port:** 3000 (configurable via PORT env var)
 
-### Encrypted API Keys
+See [apps/api/README.md](./apps/api/README.md) for more details.
 
-Each AI member stores its own encrypted API key:
+### Web App (`apps/web`)
 
-```
-User provides key → AES-256-GCM encryption → Store in DB → Decrypt on-the-fly
-```
+**@quorum/web** - Marketing and documentation website
 
-Why per-AI keys?
-- Different team members can use their own accounts
-- Better cost tracking
-- No single point of failure
-- Users control their own keys
+**Tech Stack:**
 
-### Provider-Level Queuing
+- Astro
+- TypeScript
+- Tailwind CSS
 
-```
-┌─────────────┐     ┌─────────────┐
-│   Room A    │     │   Room B    │
-│ @GPT4 @Claude│    │ @GPT4       │
-└──────┬──────┘     └──────┬──────┘
-       │                   │
-       └───────────────────┘
-                 │
-       ┌─────────┴─────────┐
-       ▼                   ▼
-┌──────────────┐    ┌──────────────┐
-│ OpenAI Queue │    │Anthropic Q   │
-│ Room A: GPT4 │    │ Room A: Claude│
-│ Room B: GPT4 │    │              │
-└──────────────┘    └──────────────┘
-```
+**Port:** 4321
 
-See [docs/architecture.md](docs/architecture.md) for detailed design.
+See [apps/web/README.md](./apps/web/README.md) for more details.
 
-## 🛠️ Tech Stack
+## Development
 
-- **Frontend**: React 18 + TypeScript + Tailwind CSS
-- **Desktop**: Electron 28
-- **State**: Zustand 5
-- **Database**: PostgreSQL
-- **Build**: Vite 5
-- **AI SDKs**: 
-  - `@anthropic-ai/sdk` (Claude)
-  - `openai` (GPT)
-  - `@deepgram/sdk` (Voice/Speech)
-  - `@elevenlabs/elevenlabs-js` (Premium TTS)
+This monorepo uses:
 
-## 📁 Project Structure
+- **NX** for build orchestration and task running
+- **pnpm** for package management with workspace support
+- **TypeScript** for type safety across all apps
+- **Tailwind CSS** for styling (Electron and Web apps)
+- **Shared configurations** for consistent tooling across projects
 
-```
-/electron          - Backend (main process)
-  /auth-service.js      - User authentication
-  /server-service.js    - Server/workspace operations
-  /encryption-service.js - API key encryption
-  /mention-utils.js     - Mention tag conversion
-  /ai-service.js        - AI response generation
-  /voice-service.js     - Speech-to-text (STT)
-  /speech-service.js    - Text-to-speech (TTS)
-  /queue-manager.js     - Provider queuing
-  /ipc-handlers.js      - IPC endpoints
-  /database.js          - PostgreSQL connection
-  /main.js              - App entry point
-  /preload.js           - IPC bridge
+### Shared Configurations & Components
 
-/src               - Frontend (React)
-  /components           - UI components
-  /store                - Zustand state
-  /utils                - Utilities
-  /types                - TypeScript types
+All apps use shared configurations and components from `libs/`:
 
-/database          - Schema and migrations
-/docs              - Documentation
-/scripts           - Utility scripts
+- **Components** (`@quorum/components`): Reusable React UI components
+- **ESLint** (v9+): Consistent linting rules with framework-specific presets using flat config format
+- **Prettier**: Unified code formatting with plugin support
+- **Tailwind**: Common design tokens and utilities
+- **TypeScript**: Base compiler options with framework-specific extensions
+
+### Editor Configuration
+
+The repository includes VSCode/Cursor settings for:
+
+- Tailwind CSS IntelliSense (using root `tailwind.config.js`)
+- ESLint integration
+- Prettier formatting
+- TypeScript support
+- Astro language support
+
+### Running All Apps Together
+
+```bash
+pnpm dev:all
 ```
 
-## 📚 Documentation
+This will start:
 
-- [Getting Started Guide](docs/getting-started.md)
-- [Architecture Overview](docs/architecture.md)
-- [Queue System](docs/queue-system.md)
-- [Mentions & Replies](docs/mentions-and-replies.md)
-- [Migration Guide](docs/MIGRATION_GUIDE.md)
+- Electron app on http://localhost:5173 (Vite dev server)
+- API server on http://localhost:3000
+- Web app on http://localhost:4321
 
-## 🔒 Security
+### Project Graph
 
-- **Password Hashing**: Scrypt with random salts
-- **API Key Encryption**: AES-256-GCM
-- **Session Management**: Secure token-based sessions
-- **Data Isolation**: Users only access their own servers
-- **Role-Based Access**: Owners, admins, and members have different permissions
+Visualize the project structure and dependencies:
 
-## 🎮 Usage Examples
-
-### Basic Chat
-```
-You: @GPT4 explain quantum computing
-GPT4: *responds with explanation*
+```bash
+pnpm graph
 ```
 
-### Multi-AI Discussion
-```
-You: @Claude @GPT4 debate: tabs vs spaces
-Claude: *gives perspective*
-GPT4: *gives counter-perspective*
-You: @Claude what do you think of @GPT4's point?
-Claude: *responds to GPT4's argument*
-```
+## Architecture
 
-### Threaded Replies
-```
-You: What's the best database?
-@GPT4: *suggests PostgreSQL*
-You: [clicks Reply on GPT4's message]
-You: Why PostgreSQL over MySQL?
-GPT4: *responds specifically to your question*
+See [apps/electron/docs/architecture.md](./apps/electron/docs/architecture.md) for detailed architectural information about the Electron app.
+
+## Adding New Apps or Libraries
+
+### Create a New Library
+
+```bash
+pnpm nx g @nx/js:library my-lib --directory=libs/my-lib
 ```
 
-## 🚧 Roadmap
+Or manually create the library following the pattern of existing shared configs.
 
-### Coming Soon
-- [ ] Message editing and deletion
-- [ ] File attachments
-- [ ] Rich text formatting
-- [ ] Voice input (STT UI)
-- [ ] Click mention to view profile
-- [ ] Click reply to jump to message
-- [ ] User mention notifications
-- [ ] Search messages
-- [ ] Export conversations
+### Create a New Application
 
-### Future Features
-- [ ] AI memory/context management
-- [ ] Custom AI model parameters
-- [ ] Voice channels
-- [ ] Reaction emojis
-- [ ] Message threads (separate from replies)
-- [ ] Server templates
-- [ ] Integration webhooks
+Manually create the app directory and configuration files, following the pattern of existing apps:
 
-## 🐛 Known Issues
+1. Create `apps/my-app/` directory
+2. Add `package.json` with `@quorum/my-app` name
+3. Add `project.json` with NX configuration
+4. Extend shared configs (`@quorum/tsconfig`, `@quorum/eslint-config`, etc.)
+5. Update root scripts if needed
 
-- Voice input UI not yet implemented (backend ready)
-- Large codebases may need context window management
-- API rate limits depend on your provider tier
+### Using Shared Configs
 
-## 💡 Tips
+In your new app:
 
-- **Multiple Perspectives**: Add 2-4 AI members with different personas
-- **Model Variety**: Mix GPT and Claude for diverse viewpoints
-- **Smart Mentions**: Only @mention AIs when you need their input
-- **Use Replies**: Create threaded discussions for complex topics
-- **Server Organization**: Create separate servers for different projects/teams
+```js
+// tsconfig.json
+{
+  "extends": "@quorum/tsconfig/node.json", // or /react.json or /astro.json
+  "compilerOptions": { /* overrides */ }
+}
 
-## 🤝 Contributing
+// .eslintrc.js
+module.exports = {
+  extends: ['@quorum/eslint-config'], // or /react or /astro
+};
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+// .prettierrc.js
+module.exports = {
+  ...require('@quorum/prettier-config'), // or /react or /astro
+};
 
-## 📝 License
+// tailwind.config.js (if using Tailwind)
+const baseConfig = require('@quorum/tailwind-config');
+module.exports = {
+  ...baseConfig,
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+};
+```
+
+## Troubleshooting
+
+### Clear NX Cache
+
+If you encounter build issues:
+
+```bash
+pnpm reset
+```
+
+### Reinstall Dependencies
+
+```bash
+pnpm install
+```
+
+## Recent Updates
+
+### ESLint 9 Migration
+
+The project has been upgraded to ESLint 9 with the new flat config format. See [ESLINT_MIGRATION.md](./ESLINT_MIGRATION.md) for details.
+
+### Key Changes
+
+- ✅ ESLint upgraded from v8 to v9
+- ✅ All deprecation warnings resolved
+- ✅ Flat config format (`eslint.config.js`) for better composition
+- ✅ Improved performance and TypeScript support
+
+## License
 
 MIT
-
-## 🙏 Acknowledgments
-
-- Built with Electron + React
-- Powered by OpenAI and Anthropic
-- Voice capabilities via Deepgram and ElevenLabs
-- Inspired by Slack and Discord
-
----
-
-**Questions?** Check out the [docs](docs/) or open an issue!
