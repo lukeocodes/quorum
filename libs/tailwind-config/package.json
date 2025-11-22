@@ -1,0 +1,12 @@
+{
+  "name": "@quorum/tailwind-config",
+  "version": "0.1.0",
+  "description": "Shared Tailwind CSS configuration for Quorum monorepo",
+  "main": "index.js",
+  "private": true,
+  "license": "MIT",
+  "peerDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}
+
