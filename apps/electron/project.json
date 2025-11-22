@@ -1,0 +1,81 @@
+{
+  "name": "electron",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/electron/src",
+  "projectType": "application",
+  "tags": [
+    "type:app",
+    "platform:electron"
+  ],
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm --filter @quorum/electron dev",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "dev:vite": {
+      "executor": "@nx/vite:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "electron:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "electron:build:development",
+          "hmr": true
+        }
+      }
+    },
+    "dev:electron": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "wait-on http://localhost:5173 && electron .",
+        "cwd": "apps/electron"
+      }
+    },
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "apps/electron/dist"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "preview": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vite preview",
+        "cwd": "apps/electron"
+      }
+    },
+    "db:migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node scripts/migrate.js",
+        "cwd": "apps/electron"
+      }
+    },
+    "package": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "electron-builder",
+        "cwd": "apps/electron"
+      },
+      "dependsOn": [
+        "build"
+      ]
+    }
+  }
+}
