@@ -1,0 +1,13 @@
+{
+  "extends": "../../libs/tsconfig/astro.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@layouts/*": ["./src/layouts/*"]
+    }
+  },
+  "include": ["src/**/*"]
+}
+
