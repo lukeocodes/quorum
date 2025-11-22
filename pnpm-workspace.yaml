@@ -1,3 +1,9 @@
+packages:
+  - apps/*
+  - libs/*
+
 onlyBuiltDependencies:
   - electron
   - esbuild
+  - nx
+  - sharp
