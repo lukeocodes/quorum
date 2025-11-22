@@ -1,0 +1,11 @@
+{
+  "name": "@quorum/tsconfig",
+  "version": "0.1.0",
+  "description": "Shared TypeScript configurations for Quorum monorepo",
+  "private": true,
+  "license": "MIT",
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
+
