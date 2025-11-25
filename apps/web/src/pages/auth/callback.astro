@@ -1,0 +1,47 @@
+---
+import Layout from '@layouts/Layout.astro';
+import { Card } from '@quorum/components';
+---
+
+<Layout title="Authentication Successful - Quorum">
+  <main class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary-50 to-secondary-50">
+    <Card variant="elevated" padding="xl" class="w-full max-w-md text-center">
+      <div class="mb-6">
+        <svg
+          class="w-16 h-16 mx-auto text-success-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+          ></path>
+        </svg>
+      </div>
+
+      <h1 class="text-2xl font-bold text-text-primary mb-2">Authentication Successful!</h1>
+      <p class="text-text-secondary mb-6">
+        You can close this window and return to the Quorum app.
+      </p>
+
+      <div class="text-sm text-text-tertiary">
+        If the app didn't open automatically, you may need to:
+        <ul class="list-disc list-inside mt-2 space-y-1">
+          <li>Allow custom protocol handlers in your browser</li>
+          <li>Manually open the Quorum desktop app</li>
+        </ul>
+      </div>
+    </Card>
+  </main>
+
+  <script>
+    // Attempt to redirect after 3 seconds
+    setTimeout(() => {
+      window.close();
+    }, 3000);
+  </script>
+</Layout>
+

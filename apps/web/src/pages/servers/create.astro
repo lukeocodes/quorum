@@ -1,0 +1,296 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Create Server - Quorum" showAccountSwitcher={true}>
+  <div class="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-text-primary mb-2">Create a Server</h1>
+        <p class="text-lg text-text-secondary">
+          Create your own community space
+        </p>
+      </div>
+
+      <!-- Create Server Form -->
+      <div class="bg-off-white rounded-lg shadow-md p-8">
+        <form id="create-server-form" class="space-y-6">
+          <div>
+            <label for="name" class="block text-sm font-medium text-text-primary mb-2">
+              Server Name <span class="text-danger-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              maxlength="100"
+              class="w-full px-4 py-3 border border-border rounded-md focus:ring-2 focus:ring-selected focus:border-transparent transition-colors"
+              placeholder="My Awesome Server"
+            />
+            <p class="mt-1 text-sm text-text-tertiary">
+              Choose a memorable name for your server
+            </p>
+          </div>
+
+          <div>
+            <label for="description" class="block text-sm font-medium text-text-primary mb-2">
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              rows="4"
+              maxlength="500"
+              class="w-full px-4 py-3 border border-border rounded-md focus:ring-2 focus:ring-selected focus:border-transparent transition-colors resize-none"
+              placeholder="Tell others what your server is about..."
+            ></textarea>
+            <p class="mt-1 text-sm text-text-tertiary">
+              Optional: Describe your server's purpose
+            </p>
+          </div>
+
+          <div class="flex items-start">
+            <div class="flex items-center h-5">
+              <input
+                id="is_public"
+                name="is_public"
+                type="checkbox"
+                class="w-4 h-4 text-selected border-border rounded focus:ring-selected"
+              />
+            </div>
+            <div class="ml-3 text-sm">
+              <label for="is_public" class="font-medium text-text-primary">
+                Make this server public
+              </label>
+              <p class="text-text-tertiary">
+                Public servers can be discovered and joined by anyone
+              </p>
+            </div>
+          </div>
+
+          <div id="error-message" class="hidden bg-danger-50 border-l-4 border-danger-500 p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-danger-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+              <div class="ml-3">
+                <p id="error-text" class="text-sm text-danger-700"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-4">
+            <a
+              href="/servers"
+              class="px-6 py-3 border border-border text-text-primary rounded-lg hover:bg-muted focus:outline-none focus:ring-2 focus:ring-secondary-500 transition-colors font-medium"
+            >
+              Cancel
+            </a>
+            <button
+              type="submit"
+              id="submit-btn"
+              class="px-6 py-3 bg-selected text-text-inverse rounded-lg hover:bg-selected/90 focus:outline-none focus:ring-2 focus:ring-selected focus:ring-offset-2 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Create Server
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Info Box -->
+      <div class="mt-6 bg-primary-50 border border-primary-200 rounded-md p-4">
+        <h3 class="text-sm font-medium text-primary-800 mb-2">What happens next?</h3>
+        <ul class="text-sm text-primary-700 space-y-1">
+          <li>• You'll be the owner of the server with full permissions</li>
+          <li>• You can create channels and invite members</li>
+          <li>• You can add the server to your desktop app</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const apiUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:3000';
+    const STORAGE_KEY = 'quorum_accounts';
+    
+    // Helper functions for account management
+    function getAccounts() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) {
+          return { accounts: [], currentUserId: null };
+        }
+        return JSON.parse(stored);
+      } catch (error) {
+        console.error('Failed to get accounts:', error);
+        return { accounts: [], currentUserId: null };
+      }
+    }
+    
+    function getCurrentAccount() {
+      const store = getAccounts();
+      if (!store.currentUserId) {
+        return null;
+      }
+      return store.accounts.find(acc => acc.user.id === store.currentUserId) || null;
+    }
+    
+    function addAccount(user, token) {
+      let store = getAccounts();
+      const existingIndex = store.accounts.findIndex(acc => acc.user.id === user.id);
+      
+      if (existingIndex >= 0) {
+        store.accounts[existingIndex] = {
+          user,
+          token,
+          addedAt: store.accounts[existingIndex].addedAt,
+        };
+      } else {
+        store.accounts.push({
+          user,
+          token,
+          addedAt: Date.now(),
+        });
+      }
+      
+      store.currentUserId = user.id;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+    }
+
+    // Try to initialize session
+    async function initializeSession() {
+      // First check if we have a stored account
+      let currentAccount = getCurrentAccount();
+      
+      if (currentAccount) {
+        // Update sessionStorage for backward compatibility
+        sessionStorage.setItem('authToken', currentAccount.token);
+        return currentAccount.token;
+      }
+      
+      // Try to get session from cookie
+      try {
+        const response = await fetch(`${apiUrl}/auth/session`, {
+          credentials: 'include',
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          const { user, token } = data.data;
+          
+          // Store account
+          addAccount(user, token);
+          sessionStorage.setItem('authToken', token);
+          
+          return token;
+        }
+      } catch (error) {
+        console.error('Failed to initialize session from cookie:', error);
+      }
+      
+      // Check sessionStorage as fallback
+      const authToken = sessionStorage.getItem('authToken');
+      if (authToken) {
+        return authToken;
+      }
+      
+      // No session found - redirect to login
+      window.location.href = '/auth/login?redirect=/servers/create';
+      return null;
+    }
+    
+    let authToken;
+    
+    async function init() {
+      authToken = await initializeSession();
+    }
+    
+    init();
+
+    // Form submission
+    const form = document.getElementById('create-server-form') as HTMLFormElement;
+    const errorMessage = document.getElementById('error-message')!;
+    const errorText = document.getElementById('error-text')!;
+    const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Hide error message
+      errorMessage.classList.add('hidden');
+
+      // Get form data
+      const formData = new FormData(form);
+      const name = formData.get('name') as string;
+      const description = formData.get('description') as string;
+      const is_public = formData.get('is_public') === 'on';
+
+      // Validate
+      if (!name || name.trim().length === 0) {
+        errorText.textContent = 'Server name is required';
+        errorMessage.classList.remove('hidden');
+        return;
+      }
+
+      // Disable submit button
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating...';
+
+      try {
+        const response = await fetch(`${apiUrl}/servers`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            name: name.trim(),
+            description: description?.trim() || undefined,
+            is_public,
+          }),
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            // Clear all session data and redirect
+            sessionStorage.removeItem('authToken');
+            const currentAccount = getCurrentAccount();
+            if (currentAccount) {
+              // Remove expired account
+              const store = getAccounts();
+              store.accounts = store.accounts.filter(acc => acc.user.id !== currentAccount.user.id);
+              if (store.currentUserId === currentAccount.user.id) {
+                store.currentUserId = store.accounts.length > 0 ? store.accounts[0].user.id : null;
+              }
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+            }
+            window.location.href = '/auth/login?redirect=/servers/create';
+            return;
+          }
+          const errorData = await response.json();
+          throw new Error(errorData.error || errorData.message || 'Failed to create server');
+        }
+
+        const data = await response.json();
+        const server = data.data.server;
+        
+        // Redirect to servers page
+        window.location.href = '/servers';
+      } catch (error) {
+        console.error('Error creating server:', error);
+        errorText.textContent = error instanceof Error ? error.message : 'Failed to create server. Please try again.';
+        errorMessage.classList.remove('hidden');
+        
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create Server';
+      }
+    });
+  </script>
+</Layout>
+

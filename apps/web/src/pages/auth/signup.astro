@@ -1,0 +1,250 @@
+---
+import Layout from "@layouts/Layout.astro";
+
+const apiUrl = import.meta.env.PUBLIC_API_URL || "http://localhost:3000";
+---
+
+<Layout title="Sign Up - Quorum">
+  <main class="min-h-screen bg-off-white flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-subtle rounded-lg shadow-xl p-8">
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-text-primary mb-2">Quorum</h1>
+        <p class="text-text-tertiary">
+          Create an account to join your workspace
+        </p>
+      </div>
+
+      <form id="signup-form" class="space-y-4 mb-6">
+        <div>
+          <label
+            for="username"
+            class="block text-sm font-medium text-text-primary mb-2"
+          >
+            Username
+          </label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            required
+            minlength="3"
+            class="w-full px-4 py-3 border border-border rounded-md focus:ring-2 focus:ring-selected focus:border-transparent transition-colors"
+            placeholder="Choose a username"
+          />
+        </div>
+
+        <div>
+          <label
+            for="email"
+            class="block text-sm font-medium text-text-primary mb-2"
+          >
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            class="w-full px-4 py-3 border border-border rounded-md focus:ring-2 focus:ring-selected focus:border-transparent transition-colors"
+            placeholder="Enter your email"
+          />
+        </div>
+
+        <div>
+          <label
+            for="display_name"
+            class="block text-sm font-medium text-text-primary mb-2"
+          >
+            Display Name (Optional)
+          </label>
+          <input
+            type="text"
+            id="display_name"
+            name="display_name"
+            class="w-full px-4 py-3 border border-border rounded-md focus:ring-2 focus:ring-selected focus:border-transparent transition-colors"
+            placeholder="How should we call you?"
+          />
+        </div>
+
+        <div>
+          <label
+            for="password"
+            class="block text-sm font-medium text-text-primary mb-2"
+          >
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            minlength="8"
+            class="w-full px-4 py-3 border border-border rounded-md focus:ring-2 focus:ring-selected focus:border-transparent transition-colors"
+            placeholder="At least 8 characters"
+          />
+        </div>
+
+        <div>
+          <label
+            for="confirm_password"
+            class="block text-sm font-medium text-text-primary mb-2"
+          >
+            Confirm Password
+          </label>
+          <input
+            type="password"
+            id="confirm_password"
+            name="confirm_password"
+            required
+            minlength="8"
+            class="w-full px-4 py-3 border border-border rounded-md focus:ring-2 focus:ring-selected focus:border-transparent transition-colors"
+            placeholder="Re-enter your password"
+          />
+        </div>
+
+        <div id="error-message" class="hidden">
+          <div
+            class="bg-danger-50 border border-danger-200 text-danger-800 px-4 py-3 rounded-md"
+          >
+            <p class="text-sm"></p>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          id="submit-btn"
+          class="w-full bg-selected hover:bg-selected/90 text-text-inverse font-medium py-3 px-4 rounded-md transition-colors"
+        >
+          Create Account
+        </button>
+      </form>
+
+      <div class="text-center text-sm text-text-secondary mb-6">
+        Already have an account?
+        <a
+          href="/auth/login"
+          class="text-selected hover:text-selected/90 font-medium"
+        >
+          Sign in
+        </a>
+      </div>
+
+      <div class="bg-primary-50 border border-primary-200 rounded-md p-4">
+        <p class="text-sm text-primary-800 text-center">
+          After signing up, you can select which servers to add to your desktop app.
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <script define:vars={{ apiUrl }}>
+    const STORAGE_KEY = 'quorum_accounts';
+    
+    function addAccount(user, token) {
+      let store;
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        store = stored ? JSON.parse(stored) : { accounts: [], currentUserId: null };
+      } catch (error) {
+        store = { accounts: [], currentUserId: null };
+      }
+      
+      const existingIndex = store.accounts.findIndex(acc => acc.user.id === user.id);
+      
+      if (existingIndex >= 0) {
+        store.accounts[existingIndex] = {
+          user,
+          token,
+          addedAt: store.accounts[existingIndex].addedAt,
+        };
+      } else {
+        store.accounts.push({
+          user,
+          token,
+          addedAt: Date.now(),
+        });
+      }
+      
+      store.currentUserId = user.id;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+    }
+    
+    const form = document.getElementById("signup-form");
+    const errorMessage = document.getElementById("error-message");
+    const submitBtn = document.getElementById("submit-btn");
+
+    form?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      // Hide error message
+      errorMessage?.classList.add("hidden");
+
+      // Get form data
+      const formData = new FormData(form);
+      const username = formData.get("username");
+      const email = formData.get("email");
+      const display_name = formData.get("display_name");
+      const password = formData.get("password");
+      const confirm_password = formData.get("confirm_password");
+
+      // Validate passwords match
+      if (password !== confirm_password) {
+        const errorText = errorMessage?.querySelector("p");
+        if (errorText) {
+          errorText.textContent = "Passwords do not match";
+        }
+        errorMessage?.classList.remove("hidden");
+        return;
+      }
+
+      // Disable submit button
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Creating account...";
+
+      try {
+        const response = await fetch(`${apiUrl}/auth/signup`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: 'include', // Include cookies
+          body: JSON.stringify({
+            username,
+            email,
+            display_name: display_name || username,
+            password,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Signup failed");
+        }
+
+        // Signup successful, store account in multi-account storage
+        const { user, token } = data.data;
+        addAccount(user, token);
+        
+        // Also store in sessionStorage for backward compatibility
+        sessionStorage.setItem('authToken', token);
+        
+        // Check if there's a redirect parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirect = urlParams.get('redirect') || '/servers';
+        window.location.href = redirect;
+      } catch (error) {
+        // Show error message
+        const errorText = errorMessage?.querySelector("p");
+        if (errorText) {
+          errorText.textContent = error.message;
+        }
+        errorMessage?.classList.remove("hidden");
+
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Create Account";
+      }
+    });
+  </script>
+</Layout>

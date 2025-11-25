@@ -15,7 +15,7 @@ export const Hero: React.FC<HeroProps> = ({ onDownload, onLearnMore }) => {
       <h1 className="mt-6 text-6xl font-bold mb-6 bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
         Welcome to Quorum
       </h1>
-      <p className="text-xl text-gray-600 mb-8">
+      <p className="text-xl text-text-secondary mb-8">
         A Slack-like app for discussions between humans and AIs
       </p>
       <div className="flex gap-4 justify-center">

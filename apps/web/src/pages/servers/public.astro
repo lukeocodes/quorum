@@ -1,0 +1,246 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Public Servers - Quorum" showAccountSwitcher={true}>
+  <div class="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-text-primary mb-2">Public Servers</h1>
+        <p class="text-lg text-text-secondary">
+          Discover and join public Quorum servers
+        </p>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loading" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-selected"></div>
+        <p class="mt-4 text-text-secondary">Loading public servers...</p>
+      </div>
+
+      <!-- Error State -->
+      <div id="error" class="hidden bg-danger-50 border-l-4 border-danger-500 p-4 mb-6">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-danger-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p id="error-message" class="text-sm text-danger-700"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Server List -->
+      <div id="server-list" class="hidden space-y-4">
+        <!-- Servers will be dynamically inserted here -->
+      </div>
+
+      <!-- No Servers State -->
+      <div id="no-servers" class="hidden bg-off-white rounded-lg shadow-md p-8 text-center">
+        <svg class="mx-auto h-12 w-12 text-text-tertiary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+        </svg>
+        <h3 class="mt-2 text-lg font-medium text-text-primary">No public servers found</h3>
+        <p class="mt-1 text-sm text-text-secondary">
+          There are no public servers available at the moment.
+        </p>
+      </div>
+
+      <!-- Back Button -->
+      <div class="mt-8 text-center">
+        <a href="/servers" class="text-selected hover:text-selected/90 font-medium">
+          ← Back to Your Servers
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const apiUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:3000';
+    const STORAGE_KEY = 'quorum_accounts';
+    
+    interface Server {
+      id: number;
+      name: string;
+      description: string;
+      isPublic: boolean;
+      memberCount: number;
+    }
+
+    function getAccounts() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return { accounts: [], currentUserId: null };
+        return JSON.parse(stored);
+      } catch (error) {
+        console.error('Failed to get accounts:', error);
+        return { accounts: [], currentUserId: null };
+      }
+    }
+    
+    function getCurrentAccount() {
+      const store = getAccounts();
+      if (!store.currentUserId) return null;
+      return store.accounts.find(acc => acc.user.id === store.currentUserId) || null;
+    }
+
+    async function initializeSession() {
+      const currentAccount = getCurrentAccount();
+      if (currentAccount) {
+        return currentAccount.token;
+      }
+      
+      window.location.href = '/auth/login?redirect=/servers/public';
+      return null;
+    }
+    
+    let authToken: string | null;
+    
+    async function init() {
+      authToken = await initializeSession();
+      if (authToken) {
+        fetchPublicServers();
+      }
+    }
+    
+    init();
+
+    async function fetchPublicServers() {
+      try {
+        const response = await fetch(`${apiUrl}/servers/public`, {
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            window.location.href = '/auth/login?redirect=/servers/public';
+            return;
+          }
+          throw new Error('Failed to fetch public servers');
+        }
+
+        const data = await response.json();
+        displayServers(data.data || []);
+      } catch (error) {
+        console.error('Error fetching public servers:', error);
+        showError('Failed to load public servers. Please try again.');
+      }
+    }
+
+    function displayServers(servers: Server[]) {
+      const loading = document.getElementById('loading')!;
+      const serverList = document.getElementById('server-list')!;
+      const noServers = document.getElementById('no-servers')!;
+
+      loading.classList.add('hidden');
+
+      if (servers.length === 0) {
+        noServers.classList.remove('hidden');
+        return;
+      }
+
+      serverList.classList.remove('hidden');
+
+      servers.forEach((server) => {
+        const serverCard = createServerCard(server);
+        serverList.appendChild(serverCard);
+      });
+    }
+
+    function createServerCard(server: Server) {
+      const serverCard = document.createElement('div');
+      serverCard.className = 'bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6';
+      
+      serverCard.innerHTML = `
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <div class="flex items-center">
+              <div class="w-12 h-12 rounded-lg bg-selected flex items-center justify-center text-text-inverse text-xl font-bold">
+                ${server.name.charAt(0).toUpperCase()}
+              </div>
+              <div class="ml-4">
+                <h3 class="text-lg font-semibold text-text-primary">${escapeHtml(server.name)}</h3>
+                <p class="text-sm text-text-secondary">Public Server</p>
+              </div>
+            </div>
+            ${server.description ? `<p class="mt-3 text-text-secondary">${escapeHtml(server.description)}</p>` : ''}
+            <div class="mt-4 flex items-center space-x-4 text-sm text-text-secondary">
+              <span>👥 ${server.memberCount} members</span>
+            </div>
+          </div>
+          <button
+            data-server-id="${server.id}"
+            class="join-server-btn ml-4 px-6 py-2 bg-success-600 text-text-inverse rounded-lg hover:bg-success-700 focus:outline-none focus:ring-2 focus:ring-success-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Join Server
+          </button>
+        </div>
+      `;
+
+      const button = serverCard.querySelector('.join-server-btn') as HTMLButtonElement;
+      button.addEventListener('click', async () => {
+        await joinPublicServer(server.id, button);
+      });
+
+      return serverCard;
+    }
+
+    async function joinPublicServer(serverId: number, button: HTMLButtonElement) {
+      button.disabled = true;
+      button.textContent = 'Joining...';
+
+      try {
+        const response = await fetch(`${apiUrl}/servers/public/${serverId}/join`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to join server');
+        }
+
+        button.textContent = 'Joined ✓';
+        button.classList.remove('bg-success-600', 'hover:bg-success-700');
+        button.classList.add('bg-secondary-400');
+        
+        setTimeout(() => {
+          window.location.href = '/servers';
+        }, 1000);
+      } catch (error) {
+        console.error('Error joining server:', error);
+        showError(error instanceof Error ? error.message : 'Failed to join server. Please try again.');
+        button.disabled = false;
+        button.textContent = 'Join Server';
+      }
+    }
+
+    function showError(message: string) {
+      const errorDiv = document.getElementById('error')!;
+      const errorMessage = document.getElementById('error-message')!;
+      const loading = document.getElementById('loading')!;
+
+      loading.classList.add('hidden');
+      errorMessage.textContent = message;
+      errorDiv.classList.remove('hidden');
+    }
+
+    function escapeHtml(text: string): string {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</Layout>
+
