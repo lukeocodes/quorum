@@ -198,7 +198,7 @@ export default function AppSidebar({ onServerChange }: AppSidebarProps) {
 
   return (
     <>
-      <div className="w-20 bg-navigation flex flex-col items-center py-4 space-y-2">
+      <div className="w-20 flex-shrink-0 bg-navigation flex flex-col items-center py-4 space-y-2">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
