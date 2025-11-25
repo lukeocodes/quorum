@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAppStore } from '../store/appStore'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { Button } from '@quorum/components'
 
 interface AIMemberManagerProps {
   onClose: () => void
@@ -101,12 +102,14 @@ export default function AIMemberManager({ onClose }: AIMemberManagerProps) {
       <div className="bg-off-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col border border-border">
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-2xl font-bold text-text-primary">AI Members</h2>
-          <button
+          <Button
+            variant="unstyled"
+            size="icon"
             onClick={onClose}
             className="text-text-tertiary hover:text-text-secondary transition-colors"
           >
             <FontAwesomeIcon icon={faXmark} className="w-6 h-6" />
-          </button>
+          </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 scrollbar-thin">
@@ -117,7 +120,7 @@ export default function AIMemberManager({ onClose }: AIMemberManagerProps) {
 
             {aiMembers.length === 0 ? (
               <div className="text-center py-8 text-text-tertiary">
-                <p>No AI members in this room yet</p>
+                <p>No AI members in this channel yet</p>
                 <p className="text-sm mt-1">Add your first AI to start the discussion</p>
               </div>
             ) : (
@@ -151,12 +154,14 @@ export default function AIMemberManager({ onClose }: AIMemberManagerProps) {
                         </p>
                       )}
                     </div>
-                    <button
+                    <Button
+                      variant="unstyled"
+                      size="icon"
                       onClick={() => handleDelete(member.id)}
-                      className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded transition-colors"
+                      className="text-danger-500 hover:text-danger-700 p-2 hover:bg-danger-50 rounded transition-colors"
                     >
                       <FontAwesomeIcon icon={faTrash} className="w-5 h-5" />
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -164,13 +169,15 @@ export default function AIMemberManager({ onClose }: AIMemberManagerProps) {
           </div>
 
           {!showForm ? (
-            <button
+            <Button
+              variant="unstyled"
+              fullWidth
               onClick={() => setShowForm(true)}
-              className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-border rounded-lg text-text-secondary hover:border-selected hover:text-selected transition-colors"
+              className="flex items-center justify-center gap-2 py-3 border-2 border-dashed border-border rounded-lg text-text-secondary hover:border-selected hover:text-selected transition-colors"
             >
               <FontAwesomeIcon icon={faPlus} className="w-5 h-5" />
               Add AI Member
-            </button>
+            </Button>
           ) : (
             <div className="border-2 border-selected rounded-lg p-6">
               <h3 className="text-lg font-semibold text-text-primary mb-4">Add New AI Member</h3>
@@ -193,9 +200,11 @@ export default function AIMemberManager({ onClose }: AIMemberManagerProps) {
                     <label className="block text-sm font-medium text-text-secondary mb-2">Avatar Color</label>
                     <div className="flex gap-2 flex-wrap">
                       {AVATAR_COLORS.map((color) => (
-                        <button
+                        <Button
                           key={color}
                           type="button"
+                          variant="unstyled"
+                          size="icon"
                           onClick={() => setFormData({ ...formData, avatarColor: color })}
                           className={`w-8 h-8 rounded-full border-2 ${
                             formData.avatarColor === color ? 'border-text-primary' : 'border-transparent'
@@ -286,20 +295,22 @@ export default function AIMemberManager({ onClose }: AIMemberManagerProps) {
                 </div>
 
                 <div className="flex gap-3 pt-2">
-                  <button
+                  <Button
                     type="button"
+                    variant="unstyled"
                     onClick={() => setShowForm(false)}
                     className="flex-1 px-4 py-2 border border-border text-text-secondary rounded-lg hover:bg-subtle transition-colors"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="submit"
+                    variant="unstyled"
                     disabled={loading}
                     className="flex-1 px-4 py-2 bg-selected text-text-inverse rounded-lg hover:bg-selected/90 transition-colors disabled:bg-border disabled:cursor-not-allowed"
                   >
                     {loading ? 'Adding...' : 'Add Member'}
-                  </button>
+                  </Button>
                 </div>
               </form>
             </div>
@@ -307,12 +318,14 @@ export default function AIMemberManager({ onClose }: AIMemberManagerProps) {
         </div>
 
         <div className="p-6 border-t">
-          <button
+          <Button
+            variant="unstyled"
+            fullWidth
             onClick={onClose}
-            className="w-full px-4 py-2 bg-subtle text-text-secondary rounded-lg hover:bg-border transition-colors"
+            className="px-4 py-2 bg-subtle text-text-secondary rounded-lg hover:bg-border transition-colors"
           >
             Close
-          </button>
+          </Button>
         </div>
       </div>
     </div>

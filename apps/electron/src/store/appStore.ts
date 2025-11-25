@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { UserSession, Server as ServerType } from '../types/electron'
 
 interface User {
   id: number
@@ -9,16 +10,7 @@ interface User {
   created_at: string
 }
 
-interface Server {
-  id: number
-  name: string
-  description: string
-  owner_id: number
-  is_public: boolean
-  role: string
-  owner_username: string
-  created_at: string
-}
+// Note: Server type is now imported from '../types/electron' as ServerType
 
 interface Room {
   id: number
@@ -68,13 +60,17 @@ interface MentionableMembers {
 }
 
 interface AppState {
-  // Auth state
+  // Session state
+  activeSession: UserSession | null
+
+  // Auth state (from active session)
   user: User | null
   authToken: string | null
-  
-  // Server state
-  currentServer: Server | null
-  
+
+  // Server state (from API)
+  servers: ServerType[]
+  currentServer: ServerType | null
+
   // Room state
   rooms: Room[]
   currentRoom: Room | null
@@ -84,45 +80,76 @@ interface AppState {
   roomsWithActivity: Set<number>
   aiThinking: boolean
   mentionableMembers: MentionableMembers | null
-  
+
+  // Session actions
+  setActiveSession: (session: UserSession | null) => void
+  fetchServersForSession: (sessionId: number) => Promise<void>
+
   // Auth actions
   setUser: (user: User | null) => void
   setAuthToken: (token: string | null) => void
-  
+
   // Server actions
-  setCurrentServer: (server: Server | null) => void
-  
+  setServers: (servers: ServerType[]) => void
+  setCurrentServer: (server: ServerType | null) => Promise<void>
+  updateServerOrder: (oldIndex: number, newIndex: number) => Promise<void>
+
   // Room actions
   loadRooms: (serverId: number) => Promise<void>
   createRoom: (serverId: number, name: string, description: string) => Promise<void>
   selectRoom: (room: Room) => Promise<void>
   archiveRoom: (roomId: number) => Promise<void>
   loadMentionableMembers: (roomId: number) => Promise<void>
-  
+
   // AI Member actions
   loadAIMembers: (roomId: number) => Promise<void>
   createAIMember: (data: any) => Promise<void>
   deleteAIMember: (memberId: number) => Promise<void>
-  
+
   // Message actions
   loadMessages: (roomId: number) => Promise<void>
   sendMessage: (content: string, replyToMessageId?: number | null) => Promise<void>
   addMessage: (message: Message) => void
   loadSummary: (roomId: number) => Promise<void>
-  
+
   // Activity tracking
   setRoomActivity: (roomId: number, active: boolean) => void
   setAIThinking: (thinking: boolean) => void
 }
 
+// Helper function to get API credentials for the current server
+function getApiCredentials(state: AppState): { apiUrl: string; authToken: string } | null {
+  // Prefer the current server's session info if available
+  if (state.currentServer?.sessionApiUrl && state.currentServer?.sessionAuthToken) {
+    return {
+      apiUrl: state.currentServer.sessionApiUrl,
+      authToken: state.currentServer.sessionAuthToken,
+    }
+  }
+
+  // Fall back to active session
+  if (state.activeSession?.apiUrl && state.activeSession?.authToken) {
+    return {
+      apiUrl: state.activeSession.apiUrl,
+      authToken: state.activeSession.authToken,
+    }
+  }
+
+  return null
+}
+
 export const useAppStore = create<AppState>((set, get) => ({
+  // Session state
+  activeSession: null,
+
   // Auth state
   user: null,
   authToken: null,
-  
+
   // Server state
+  servers: [],
   currentServer: null,
-  
+
   // Room state
   rooms: [],
   currentRoom: null,
@@ -132,6 +159,64 @@ export const useAppStore = create<AppState>((set, get) => ({
   roomsWithActivity: new Set(),
   aiThinking: false,
   mentionableMembers: null,
+
+  // Session actions
+  setActiveSession: (session) => {
+    console.log('🔄 setActiveSession called with:', session)
+    set({
+      activeSession: session,
+      // Set user and auth token from session
+      user: session ? {
+        id: session.userId,
+        username: session.username,
+        email: session.email,
+        display_name: session.displayName,
+        avatar_color: session.avatarColor,
+        created_at: '',
+      } : null,
+      authToken: session?.authToken || null,
+      // Clear room state when switching sessions, but keep servers from all sessions
+      rooms: [],
+      currentRoom: null,
+      aiMembers: [],
+      messages: [],
+      summary: '',
+      roomsWithActivity: new Set(),
+      mentionableMembers: null,
+    })
+
+    // Fetch servers from ALL sessions (not just the active one)
+    console.log('📡 Triggering fetchServersForSession to refresh all servers')
+    get().fetchServersForSession(session?.id || 0)
+  },
+
+  fetchServersForSession: async (sessionId) => {
+    try {
+      console.log('🔍 Fetching servers from ALL sessions')
+      const result = await window.electronAPI.getAllServers()
+      console.log('📦 Servers result:', result)
+
+      if (result.success) {
+        console.log(`✅ Found ${result.data.length} total servers across all users`)
+        if (result.data.length === 0) {
+          console.log('ℹ️  No servers added to desktop yet. Add servers via the web app.')
+        }
+        set({ servers: result.data })
+
+        // Auto-select first server if none selected
+        const currentServer = get().currentServer
+        if (!currentServer && result.data.length > 0) {
+          console.log('📍 Auto-selecting first server:', result.data[0].name)
+          get().setCurrentServer(result.data[0])
+        }
+      } else {
+        console.error('❌ Failed to fetch servers')
+      }
+    } catch (error) {
+      console.error('❌ Error fetching servers:', error)
+      set({ servers: [] })
+    }
+  },
 
   // Auth actions
   setUser: (user) => {
@@ -143,8 +228,12 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   // Server actions
-  setCurrentServer: (server) => {
-    set({ 
+  setServers: (servers) => {
+    set({ servers })
+  },
+
+  setCurrentServer: async (server) => {
+    set({
       currentServer: server,
       rooms: [],
       currentRoom: null,
@@ -152,99 +241,451 @@ export const useAppStore = create<AppState>((set, get) => ({
       messages: [],
       summary: ''
     })
-    
+
     // Load rooms for the server
     if (server) {
-      get().loadRooms(server.id)
+      await get().loadRooms(server.id)
+
+      // After rooms are loaded, try to load the last viewed room
+      const credentials = getApiCredentials(get())
+      if (credentials) {
+        try {
+          // Get last viewed channel ID
+          const response = await fetch(`${credentials.apiUrl}/servers/${server.id}/last-viewed-channel`, {
+            headers: {
+              'Authorization': `Bearer ${credentials.authToken}`,
+              'Content-Type': 'application/json',
+            },
+          })
+
+          if (response.ok) {
+            const data = await response.json()
+            const lastViewedRoomId = data.data?.channel_id
+
+            const { rooms } = get()
+            let roomToSelect = null
+
+            if (lastViewedRoomId) {
+              // Find the last viewed room
+              roomToSelect = rooms.find(r => r.id === lastViewedRoomId)
+            }
+
+            // If no last viewed room or room not found, default to "general"
+            if (!roomToSelect) {
+              roomToSelect = rooms.find(r => r.name.toLowerCase() === 'general')
+            }
+
+            // If still no room, select the first available room
+            if (!roomToSelect && rooms.length > 0) {
+              roomToSelect = rooms[0]
+            }
+
+            // Select the room
+            if (roomToSelect) {
+              await get().selectRoom(roomToSelect)
+            }
+          }
+        } catch (error) {
+          console.error('Error loading last viewed room:', error)
+          // Fall back to selecting general or first room
+          const { rooms } = get()
+          const generalRoom = rooms.find(r => r.name.toLowerCase() === 'general')
+          const roomToSelect = generalRoom || rooms[0]
+          if (roomToSelect) {
+            await get().selectRoom(roomToSelect)
+          }
+        }
+      }
+    }
+  },
+
+  updateServerOrder: async (oldIndex, newIndex) => {
+    const { activeSession, servers } = get()
+    if (!activeSession) {
+      console.error('No active session when updating server order')
+      return
+    }
+
+    // Optimistically update UI
+    const newServers = [...servers]
+    const [movedServer] = newServers.splice(oldIndex, 1)
+    newServers.splice(newIndex, 0, movedServer)
+    set({ servers: newServers })
+
+    // Persist to database - update all server positions
+    try {
+      for (let i = 0; i < newServers.length; i++) {
+        await window.electronAPI.updateServerOrder(activeSession.id, newServers[i].id, i)
+      }
+      console.log('Server order updated successfully')
+    } catch (error) {
+      console.error('Error updating server order:', error)
+      // Revert on error
+      set({ servers })
     }
   },
 
   // Room actions
   loadRooms: async (serverId) => {
-    const rooms = await window.electronAPI.getRooms(serverId)
-    set({ rooms })
+    console.log('loadRooms called for serverId:', serverId)
+    const { currentServer } = get()
+
+    if (!currentServer) {
+      console.error('No current server when loading rooms')
+      return
+    }
+
+    // Use the server's session auth token if available, otherwise fall back to active session
+    const apiUrl = currentServer.sessionApiUrl || get().activeSession?.apiUrl
+    const authToken = currentServer.sessionAuthToken || get().activeSession?.authToken
+
+    if (!apiUrl || !authToken) {
+      console.error('No API URL or auth token available for this server')
+      return
+    }
+
+    console.log('Using server session:', {
+      apiUrl,
+      hasToken: !!authToken,
+      fromServer: !!currentServer.sessionApiUrl,
+    })
+
+    try {
+      const url = `${apiUrl}/servers/${serverId}/channels`
+      console.log('Fetching channels from:', url)
+
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      console.log('Channels response status:', response.status)
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('API error response:', errorText)
+        throw new Error(`Failed to fetch channels: ${response.status}`)
+      }
+
+      const data = await response.json()
+      console.log('Channels data from API:', data)
+      console.log('Channels array:', data.data?.channels)
+      console.log('Number of channels:', data.data?.channels?.length || 0)
+
+      set({ rooms: data.data?.channels || [] })
+    } catch (error) {
+      console.error('Error loading channels:', error)
+      set({ rooms: [] })
+    }
   },
 
   createRoom: async (serverId, name, description) => {
-    const room = await window.electronAPI.createRoom(serverId, name, description)
-    set((state) => ({
-      rooms: [room, ...state.rooms]
-    }))
+    const credentials = getApiCredentials(get())
+    if (!credentials) {
+      console.error('No API credentials available')
+      throw new Error('Not authenticated')
+    }
+
+    try {
+      const response = await fetch(`${credentials.apiUrl}/servers/${serverId}/channels`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${credentials.authToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          description,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to create room')
+      }
+
+      const data = await response.json()
+      const room = data.data?.room
+
+      // Only add the room if it exists
+      if (room) {
+        set((state) => ({
+          rooms: [room, ...state.rooms]
+        }))
+      } else {
+        console.error('Room object not returned from API:', data)
+        throw new Error('Invalid response from server')
+      }
+    } catch (error) {
+      console.error('Error creating room:', error)
+      throw error
+    }
   },
 
   selectRoom: async (room) => {
     set({ currentRoom: room, messages: [], mentionableMembers: null })
+
+    // Update last viewed channel on the server
+    const credentials = getApiCredentials(get())
+    const { currentServer } = get()
+    if (credentials && currentServer) {
+      try {
+        await fetch(`${credentials.apiUrl}/servers/${currentServer.id}/last-viewed-channel`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${credentials.authToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ channel_id: room.id }),
+        })
+      } catch (error) {
+        console.error('Error updating last viewed room:', error)
+        // Don't block room selection if this fails
+      }
+    }
+
     await get().loadAIMembers(room.id)
     await get().loadMessages(room.id)
-    await get().loadSummary(room.id)
-    await get().loadMentionableMembers(room.id)
+    // Summary and mentionable members endpoints don't exist yet - skip for now
+    // await get().loadSummary(room.id)
+    // await get().loadMentionableMembers(room.id)
   },
 
   archiveRoom: async (roomId) => {
-    await window.electronAPI.archiveRoom(roomId)
-    set((state) => ({
-      rooms: state.rooms.filter(r => r.id !== roomId),
-      currentRoom: state.currentRoom?.id === roomId ? null : state.currentRoom
-    }))
+    const credentials = getApiCredentials(get())
+    if (!credentials) {
+      console.error('No API credentials available')
+      throw new Error('Not authenticated')
+    }
+
+    try {
+      const response = await fetch(`${credentials.apiUrl}/channels/${roomId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${credentials.authToken}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to archive room')
+      }
+
+      set((state) => ({
+        rooms: state.rooms.filter(r => r.id !== roomId),
+        currentRoom: state.currentRoom?.id === roomId ? null : state.currentRoom
+      }))
+    } catch (error) {
+      console.error('Error archiving room:', error)
+      throw error
+    }
   },
 
   loadMentionableMembers: async (roomId) => {
-    const members = await window.electronAPI.getMentionableMembers(roomId)
-    set({ mentionableMembers: members })
+    const credentials = getApiCredentials(get())
+    if (!credentials) {
+      console.error('No API credentials available')
+      return
+    }
+
+    try {
+      const response = await fetch(`${credentials.apiUrl}/channels/${roomId}/mentionable-members`, {
+        headers: {
+          'Authorization': `Bearer ${credentials.authToken}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch mentionable members')
+      }
+
+      const data = await response.json()
+      set({ mentionableMembers: data.data || { users: [], aiMembers: [] } })
+    } catch (error) {
+      console.error('Error loading mentionable members:', error)
+      set({ mentionableMembers: { users: [], aiMembers: [] } })
+    }
   },
 
   // AI Member actions
   loadAIMembers: async (roomId) => {
-    const aiMembers = await window.electronAPI.getAIMembers(roomId)
-    set({ aiMembers })
+    const credentials = getApiCredentials(get())
+    if (!credentials) {
+      console.error('No API credentials available')
+      return
+    }
+
+    try {
+      const response = await fetch(`${credentials.apiUrl}/channels/${roomId}/ai-members`, {
+        headers: {
+          'Authorization': `Bearer ${credentials.authToken}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch AI members')
+      }
+
+      const data = await response.json()
+      console.log('AI members response:', data)
+      // API returns { data: { ai_members: [...] } }
+      set({ aiMembers: data.data?.ai_members || [] })
+    } catch (error) {
+      console.error('Error loading AI members:', error)
+      set({ aiMembers: [] })
+    }
   },
 
   createAIMember: async (data) => {
-    const member = await window.electronAPI.createAIMember(data)
-    set((state) => ({
-      aiMembers: [...state.aiMembers, member]
-    }))
-    // Refresh mentionable members list
-    const currentRoom = get().currentRoom
-    if (currentRoom) {
-      await get().loadMentionableMembers(currentRoom.id)
+    const credentials = getApiCredentials(get())
+    const { currentRoom } = get()
+    if (!credentials || !currentRoom) {
+      console.error('No API credentials or current room')
+      throw new Error('Not authenticated or no room selected')
+    }
+
+    try {
+      const response = await fetch(`${credentials.apiUrl}/rooms/${currentRoom.id}/ai-members`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${credentials.authToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to create AI member')
+      }
+
+      const responseData = await response.json()
+      const member = responseData.data?.ai_member
+
+      set((state) => ({
+        aiMembers: [...state.aiMembers, member]
+      }))
+
+      // Refresh mentionable members list
+      if (currentRoom) {
+        await get().loadMentionableMembers(currentRoom.id)
+      }
+    } catch (error) {
+      console.error('Error creating AI member:', error)
+      throw error
     }
   },
 
   deleteAIMember: async (memberId) => {
-    await window.electronAPI.deleteAIMember(memberId)
-    set((state) => ({
-      aiMembers: state.aiMembers.filter(m => m.id !== memberId)
-    }))
-    // Refresh mentionable members list
-    const currentRoom = get().currentRoom
-    if (currentRoom) {
-      await get().loadMentionableMembers(currentRoom.id)
+    const credentials = getApiCredentials(get())
+    if (!credentials) {
+      console.error('No API credentials available')
+      throw new Error('Not authenticated')
+    }
+
+    try {
+      const response = await fetch(`${credentials.apiUrl}/ai-members/${memberId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${credentials.authToken}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to delete AI member')
+      }
+
+      set((state) => ({
+        aiMembers: state.aiMembers.filter(m => m.id !== memberId)
+      }))
+
+      // Refresh mentionable members list
+      const currentRoom = get().currentRoom
+      if (currentRoom) {
+        await get().loadMentionableMembers(currentRoom.id)
+      }
+    } catch (error) {
+      console.error('Error deleting AI member:', error)
+      throw error
     }
   },
 
   // Message actions
   loadMessages: async (roomId) => {
-    const messages = await window.electronAPI.getMessages(roomId, 100)
-    set({ messages })
+    const credentials = getApiCredentials(get())
+    if (!credentials) {
+      console.error('No API credentials available')
+      return
+    }
+
+    try {
+      const response = await fetch(`${credentials.apiUrl}/channels/${roomId}/messages?limit=100`, {
+        headers: {
+          'Authorization': `Bearer ${credentials.authToken}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch messages')
+      }
+
+      const data = await response.json()
+      console.log('Messages response:', data)
+      // API returns { data: { data: [...], pagination: {...} } }
+      const messages = data.data?.data || []
+      console.log('Messages array:', messages, 'Count:', messages.length)
+      set({ messages })
+    } catch (error) {
+      console.error('Error loading messages:', error)
+      set({ messages: [] })
+    }
   },
 
   sendMessage: async (content, replyToMessageId = null) => {
+    const credentials = getApiCredentials(get())
     const { currentRoom } = get()
-    if (!currentRoom) return
+    if (!currentRoom || !credentials) return
 
-    const message = await window.electronAPI.sendMessage(currentRoom.id, content, replyToMessageId)
-    set((state) => ({
-      messages: [...state.messages, message]
-    }))
+    try {
+      const response = await fetch(`${credentials.apiUrl}/channels/${currentRoom.id}/messages`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${credentials.authToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content,
+          reply_to_message_id: replyToMessageId,
+        }),
+      })
 
-    // Check if message contains AI mentions (indicated by activity from backend)
-    // The backend will queue AIs if they were mentioned
+      if (!response.ok) {
+        throw new Error('Failed to send message')
+      }
+
+      const data = await response.json()
+      set((state) => ({
+        messages: [...state.messages, data.data]
+      }))
+
+      // Check if message contains AI mentions (indicated by activity from backend)
+      // The backend will queue AIs if they were mentioned
+    } catch (error) {
+      console.error('Error sending message:', error)
+    }
   },
 
   addMessage: (message) => {
     const { currentRoom } = get()
-    
+
     set((state) => {
       // Only add if message belongs to current room OR update activity
       if (currentRoom && message.room_id === currentRoom.id) {
@@ -266,8 +707,32 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   loadSummary: async (roomId) => {
-    const summary = await window.electronAPI.getSummary(roomId)
-    set({ summary })
+    const credentials = getApiCredentials(get())
+    if (!credentials) {
+      console.error('No API credentials available')
+      return
+    }
+
+    try {
+      const response = await fetch(`${credentials.apiUrl}/channels/${roomId}/summary`, {
+        headers: {
+          'Authorization': `Bearer ${credentials.authToken}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        // Summary might not exist, that's OK
+        set({ summary: '' })
+        return
+      }
+
+      const data = await response.json()
+      set({ summary: data.data || '' })
+    } catch (error) {
+      console.error('Error loading summary:', error)
+      set({ summary: '' })
+    }
   },
 
   // Activity tracking
@@ -284,22 +749,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   setAIThinking: (thinking) => {
-    set({ aiThinking })
+    set({ aiThinking: thinking })
   },
 }))
 
-// Listen for AI responses and errors
-if (window.electronAPI) {
-  window.electronAPI.onAIResponse((message: Message) => {
-    useAppStore.getState().addMessage(message)
-  })
-
-  window.electronAPI.onAIError((data: any) => {
-    console.error('AI Error:', data)
-    // Clear thinking state if error in current room
-    const currentRoom = useAppStore.getState().currentRoom
-    if (currentRoom && data.roomId === currentRoom.id) {
-      useAppStore.getState().setAIThinking(false)
-    }
-  })
-}
+// Note: AI processing now happens via the API, not locally in Electron
+// Event listeners for AI responses have been removed since the API handles all AI operations

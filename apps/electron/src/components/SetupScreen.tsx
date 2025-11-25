@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Button } from '@quorum/components'
 import { useAppStore } from '../store/appStore'
 
 interface SetupScreenProps {
@@ -64,7 +65,7 @@ export default function SetupScreen({ onComplete }: SetupScreenProps) {
           {/* LLM Providers */}
           <div className="border-b pb-6">
             <h2 className="text-xl font-semibold text-text-primary mb-4">
-              LLM Providers <span className="text-red-500">*</span>
+              LLM Providers <span className="text-danger-500">*</span>
             </h2>
             <p className="text-sm text-text-secondary mb-4">At least one is required</p>
             
@@ -137,18 +138,20 @@ export default function SetupScreen({ onComplete }: SetupScreenProps) {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-800 text-sm">{error}</p>
+            <div className="bg-danger-50 border border-danger-200 rounded-lg p-4">
+              <p className="text-danger-800 text-sm">{error}</p>
             </div>
           )}
 
-          <button
+          <Button
             type="submit"
+            variant="unstyled"
+            fullWidth
             disabled={saving}
-            className="w-full bg-selected text-text-inverse py-3 rounded-lg font-semibold hover:bg-selected/90 transition-colors disabled:bg-border disabled:cursor-not-allowed"
+            className="bg-selected text-text-inverse py-3 rounded-lg font-semibold hover:bg-selected/90 transition-colors disabled:bg-border disabled:cursor-not-allowed"
           >
             {saving ? 'Saving...' : 'Continue to Quorum'}
-          </button>
+          </Button>
         </form>
       </div>
     </div>

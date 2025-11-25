@@ -1,56 +1,99 @@
+export interface UserSession {
+  id: number
+  userId: number
+  username: string
+  email: string
+  displayName: string
+  avatarColor: string
+  authToken: string
+  apiUrl: string
+  isActive: boolean
+}
+
+export interface Server {
+  id: number
+  name: string
+  description: string
+  isPublic: boolean
+  role: string
+  roomCount: number
+  memberCount: number
+  addedAt: string
+  lastAccessedAt: string
+  createdAt: string
+  updatedAt: string
+  // Session info (included when fetching from all sessions)
+  sessionId?: number
+  sessionUserId?: number
+  sessionUsername?: string
+  sessionAuthToken?: string
+  sessionApiUrl?: string
+}
+
+export interface ServerConnectionData {
+  server: {
+    id: number
+    name: string
+    description?: string
+    isPublic: boolean
+    role: string
+  }
+  user: {
+    id: number
+    username: string
+    email: string
+    displayName: string
+    avatarColor: string
+  }
+  authToken: string
+  apiUrl: string
+}
+
+export interface ChannelSection {
+  id: string
+  name: string
+  type: 'channels'
+  channelIds: number[]
+  collapsed: boolean
+  isDefault: boolean
+}
+
 export interface ElectronAPI {
-  // Authentication
-  signup: (username: string, email: string, password: string, displayName?: string) => Promise<{ user: any, token: string }>
-  login: (usernameOrEmail: string, password: string) => Promise<{ user: any, token: string }>
-  logout: (token: string) => Promise<{ success: boolean }>
-  validateSession: (token: string) => Promise<any>
-  getCurrentUser: () => Promise<{ user: any, token: string } | null>
+  // System
+  openExternal: (url: string) => Promise<{ success: boolean }>
 
-  // Servers
-  createServer: (name: string, description: string, isPublic: boolean) => Promise<any>
-  getUserServers: () => Promise<any[]>
-  getServer: (serverId: number) => Promise<any>
-  updateServer: (serverId: number, updates: any) => Promise<any>
-  deleteServer: (serverId: number) => Promise<{ success: boolean }>
-  getServerMembers: (serverId: number) => Promise<any[]>
-  createInvite: (serverId: number, maxUses?: number, expiresIn?: number) => Promise<any>
-  joinServerWithInvite: (inviteCode: string) => Promise<any>
-  joinPublicServer: (serverId: number) => Promise<any>
-  leaveServer: (serverId: number) => Promise<{ success: boolean }>
-  getPublicServers: (limit?: number, offset?: number) => Promise<any[]>
-  shareChannel: (roomId: number, targetServerId: number) => Promise<any>
+  // Sessions (Multi-Account Support - Local SQLite)
+  getAllSessions: () => Promise<{ success: boolean; data: UserSession[] }>
+  getActiveSession: () => Promise<{ success: boolean; data: UserSession | null }>
+  setActiveSession: (sessionId: number) => Promise<{ success: boolean; data?: UserSession; error?: string }>
+  removeSession: (sessionId: number) => Promise<{ success: boolean; error?: string }>
+  
+  // Servers (fetched from API via session manager cache)
+  getServersForSession: (sessionId: number) => Promise<{ success: boolean; data: Server[] }>
+  getAllServers: () => Promise<{ success: boolean; data: Server[] }>
+  updateServerOrder: (sessionId: number, serverId: number, newOrder: number) => Promise<{ success: boolean; error?: string }>
+  removeServer: (serverId: number) => Promise<{ success: boolean; error?: string }>
+  refreshServers: (sessionId: number) => Promise<{ success: boolean; data: Server[] }>
+  openAddServerFlow: () => Promise<{ success: boolean }>
 
-  // Rooms
-  getRooms: (serverId: number) => Promise<any[]>
-  createRoom: (serverId: number, name: string, description: string) => Promise<any>
-  archiveRoom: (roomId: number) => Promise<{ success: boolean }>
-  getMentionableMembers: (roomId: number) => Promise<{ users: any[], aiMembers: any[] }>
+  // Channel sections (Local SQLite for organizing channels - server-specific)
+  loadSections: (sessionId: number, serverId: number) => Promise<{ success: boolean; data?: ChannelSection[]; error?: string }>
+  saveSections: (sessionId: number, serverId: number, sections: ChannelSection[]) => Promise<{ success: boolean; error?: string }>
 
-  // AI Members
-  getAIMembers: (roomId: number) => Promise<any[]>
-  createAIMember: (data: any) => Promise<any>
-  deleteAIMember: (memberId: number) => Promise<{ success: boolean }>
-
-  // Messages
-  getMessages: (roomId: number, limit: number) => Promise<any[]>
-  sendMessage: (roomId: number, content: string, replyToMessageId?: number | null) => Promise<any>
-
-  // AI Operations
-  generateAIResponse: (data: any) => Promise<string>
-  updateSummary: (roomId: number) => Promise<{ success: boolean }>
-  getSummary: (roomId: number) => Promise<string>
-
-  // STT/TTS
-  transcribeAudio: (audioData: Buffer) => Promise<string>
-  synthesizeSpeech: (text: string, provider: string) => Promise<Buffer>
-
-  // Queue status
-  getQueueStatus: () => Promise<any>
+  // UI preferences (Local SQLite for UI settings)
+  // App-level preferences (e.g., sidebar width) - not tied to a specific server
+  loadAppUIPreference: (sessionId: number, preferenceKey: string) => Promise<{ success: boolean; data?: string | null; error?: string }>
+  saveAppUIPreference: (sessionId: number, preferenceKey: string, preferenceValue: string) => Promise<{ success: boolean; error?: string }>
+  // Server-level preferences (e.g., theme overrides) - tied to a specific server
+  loadServerUIPreference: (sessionId: number, serverId: number, preferenceKey: string) => Promise<{ success: boolean; data?: string | null; error?: string }>
+  saveServerUIPreference: (sessionId: number, serverId: number, preferenceKey: string, preferenceValue: string) => Promise<{ success: boolean; error?: string }>
 
   // Event listeners
-  onMessage: (callback: (message: any) => void) => void
-  onAIResponse: (callback: (data: any) => void) => void
-  onAIError: (callback: (data: any) => void) => void
+  onSessionAdded: (callback: (data: { session: UserSession; serverId?: number }) => void) => void
+  onSessionChanged: (callback: (data: { session: UserSession }) => void) => void
+  onSessionRemoved: (callback: (data: { sessionId: number }) => void) => void
+  onServerRemoved: (callback: (data: { serverId: number }) => void) => void
+  removeAllListeners: (channel: string) => void
 }
 
 declare global {

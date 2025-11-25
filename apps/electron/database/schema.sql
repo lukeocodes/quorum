@@ -56,6 +56,17 @@ CREATE TABLE IF NOT EXISTS server_invites (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- User added servers table (tracks which servers users have added to their clients)
+CREATE TABLE IF NOT EXISTS user_added_servers (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  server_id INTEGER NOT NULL REFERENCES servers(id) ON DELETE CASCADE,
+  client_type VARCHAR(20) NOT NULL CHECK (client_type IN ('desktop', 'web')),
+  added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  last_accessed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, server_id, client_type)
+);
+
 -- Rooms table for discussion spaces (now linked to servers)
 CREATE TABLE IF NOT EXISTS rooms (
   id SERIAL PRIMARY KEY,
@@ -134,6 +145,10 @@ CREATE INDEX IF NOT EXISTS idx_servers_invite_code ON servers(invite_code);
 CREATE INDEX IF NOT EXISTS idx_server_members_server_id ON server_members(server_id);
 CREATE INDEX IF NOT EXISTS idx_server_members_user_id ON server_members(user_id);
 CREATE INDEX IF NOT EXISTS idx_server_invites_code ON server_invites(code);
+CREATE INDEX IF NOT EXISTS idx_user_added_servers_user_id ON user_added_servers(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_added_servers_server_id ON user_added_servers(server_id);
+CREATE INDEX IF NOT EXISTS idx_user_added_servers_client_type ON user_added_servers(client_type);
+CREATE INDEX IF NOT EXISTS idx_user_added_servers_composite ON user_added_servers(user_id, server_id, client_type);
 CREATE INDEX IF NOT EXISTS idx_rooms_server_id ON rooms(server_id);
 CREATE INDEX IF NOT EXISTS idx_rooms_archived ON rooms(archived);
 CREATE INDEX IF NOT EXISTS idx_channel_shares_room_id ON channel_shares(room_id);

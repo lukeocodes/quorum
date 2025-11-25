@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useAppStore } from '../store/appStore'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane, faMicrophone, faXmark } from '@fortawesome/free-solid-svg-icons'
+import { Button } from '@quorum/components'
 
 interface MessageInputProps {
   replyTo: any | null
@@ -36,7 +37,7 @@ export default function MessageInput({ replyTo, onCancelReply }: MessageInputPro
       await sendMessage(content.trim(), replyTo?.id || null)
       setContent('')
       if (textareaRef.current) {
-        textareaRef.current.style.height = 'auto'
+        textareaRef.current.style.height = '36px'
       }
       onCancelReply()
     } catch (error) {
@@ -69,8 +70,8 @@ export default function MessageInput({ replyTo, onCancelReply }: MessageInputPro
     setContent(newContent)
     setCursorPosition(newCursorPosition)
     
-    // Auto-resize textarea
-    e.target.style.height = 'auto'
+    // Auto-resize textarea - reset to initial height (36px = h-10), then expand to content
+    e.target.style.height = '36px'
     e.target.style.height = e.target.scrollHeight + 'px'
     
     // Check for @ mention trigger
@@ -167,101 +168,97 @@ export default function MessageInput({ replyTo, onCancelReply }: MessageInputPro
     <div className="border-t border-border bg-off-white">
       {/* Reply Indicator */}
       {replyTo && (
-        <div className="px-4 pt-3 pb-2 bg-subtle border-b border-border">
+        <div className="px-3 pt-2 pb-1.5 bg-subtle border-b border-border">
           <div className="flex items-start gap-2">
             <div className="flex-1 min-w-0">
-              <div className="text-xs text-text-tertiary mb-1">
+              <div className="text-xs text-text-tertiary mb-0.5">
                 Replying to {getMemberDisplayName(replyTo)}
               </div>
-              <div className="text-sm text-text-secondary truncate">
+              <div className="text-xs text-text-secondary truncate">
                 {replyTo.content.substring(0, 100)}
                 {replyTo.content.length > 100 ? '...' : ''}
               </div>
             </div>
-            <button
+            <Button
+              variant="unstyled"
+              size="icon"
               onClick={onCancelReply}
-              className="p-1 hover:bg-subtle rounded transition-colors"
+              className="p-0.5 hover:bg-subtle rounded transition-colors"
               title="Cancel reply"
             >
-              <FontAwesomeIcon icon={faXmark} className="w-4 h-4 text-text-tertiary" />
-            </button>
+              <FontAwesomeIcon icon={faXmark} className="w-3 h-3 text-text-tertiary" />
+            </Button>
           </div>
         </div>
       )}
 
       {/* Mention Autocomplete Menu */}
       {showMentionMenu && suggestions.length > 0 && (
-        <div className="px-4 py-2 border-b border-border bg-subtle max-h-48 overflow-y-auto">
-          <div className="space-y-1">
+        <div className="px-3 py-1.5 border-b border-border bg-subtle max-h-48 overflow-y-auto">
+          <div className="space-y-0.5">
             {suggestions.map((member) => (
-              <button
+              <Button
                 key={`${member.type}-${member.id}`}
+                variant="unstyled"
                 onClick={() => insertMention(member)}
-                className="w-full flex items-center gap-3 px-3 py-2 hover:bg-subtle rounded-lg text-left transition-colors"
+                className="w-full flex items-center gap-2 px-2 py-1.5 hover:bg-subtle rounded-lg text-left transition-colors"
               >
                 <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-text-primary font-semibold text-xs flex-shrink-0"
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-text-primary font-semibold text-xs flex-shrink-0"
                   style={{ backgroundColor: member.avatar_color }}
                 >
                   {member.name[0]}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-text-primary">{member.name}</div>
+                  <div className="text-sm font-medium text-text-primary">{member.name}</div>
                   <div className="text-xs text-text-tertiary">
                     {member.type === 'user' ? 'User' : 'AI Member'}
                   </div>
                 </div>
-              </button>
+              </Button>
             ))}
           </div>
         </div>
       )}
 
       {/* Input Area */}
-      <div className="p-4 bg-subtle border-t border-border">
-        <form onSubmit={handleSubmit} className="flex gap-3">
+      <div className="p-3 bg-subtle border-t border-border">
+        <form onSubmit={handleSubmit} className="flex gap-2 items-start">
           <textarea
             ref={textareaRef}
             value={content}
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
-            placeholder={
-              aiThinking 
-                ? "Waiting for AI responses..." 
-                : "Type your message... (@mention to tag someone, Shift+Enter for new line)"
-            }
-            className="flex-1 px-4 py-3 bg-white border border-border text-text-primary placeholder-text-tertiary rounded-lg focus:ring-2 focus:ring-selected focus:border-transparent resize-none max-h-32 scrollbar-thin disabled:bg-off-white disabled:text-text-secondary"
-            rows={1}
+            placeholder="Type a message..."
+            className="flex-1 px-3 py-2 text-sm bg-white border border-border text-text-primary placeholder-text-tertiary rounded-lg focus:ring-2 focus:ring-selected focus:border-transparent resize-none max-h-32 scrollbar-thin disabled:bg-off-white disabled:text-text-secondary h-10 min-h-10 leading-5"
             disabled={isDisabled}
           />
           
-          <button
+          <Button
             type="button"
+            variant="unstyled"
             onClick={handleVoiceInput}
             disabled={recording}
-            className={`px-4 py-3 rounded-lg transition-colors border ${
+            className={`!px-3 !py-2 !text-sm !leading-5 !h-10 rounded-lg transition-colors border flex items-center justify-center shrink-0 ${
               recording
                 ? 'bg-notification text-text-primary border-notification'
                 : 'bg-subtle text-text-secondary hover:bg-border border-border'
             }`}
             title="Voice input (coming soon)"
           >
-            <FontAwesomeIcon icon={faMicrophone} className="w-5 h-5" />
-          </button>
+            <FontAwesomeIcon icon={faMicrophone} className="w-3.5 h-3.5" />
+          </Button>
           
-          <button
+          <Button
             type="submit"
+            variant="unstyled"
             disabled={!content.trim() || isDisabled}
-            className="px-6 py-3 bg-selected text-text-inverse rounded-lg hover:bg-selected/90 transition-colors disabled:bg-border disabled:cursor-not-allowed flex items-center gap-2 font-semibold"
+            className="!px-4 !py-2 !text-sm !leading-5 !h-10 bg-selected text-text-inverse rounded-lg hover:bg-selected/90 transition-colors disabled:bg-border disabled:cursor-not-allowed flex items-center justify-center gap-1.5 font-semibold shrink-0"
           >
-            <FontAwesomeIcon icon={faPaperPlane} className="w-5 h-5" />
+            <FontAwesomeIcon icon={faPaperPlane} className="w-4 h-4" />
             {sending ? 'Sending...' : aiThinking ? 'Waiting...' : 'Send'}
-          </button>
+          </Button>
         </form>
-        
-        <p className="text-xs text-text-tertiary mt-2">
-          Tip: Use @name to mention users or AI members
-        </p>
       </div>
     </div>
   )

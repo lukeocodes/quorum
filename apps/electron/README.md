@@ -9,6 +9,7 @@ A multi-user collaborative platform for discussions between humans and AI agents
 ## ✨ Features
 
 ### 🔐 Multi-User Authentication
+- OAuth-style flow (authentication in browser, redirect to app)
 - User accounts with secure authentication
 - Session-based login with 30-day persistence
 - Password hashing with scrypt
@@ -190,12 +191,11 @@ See [docs/architecture.md](docs/architecture.md) for detailed design.
   /auth-service.js      - User authentication
   /server-service.js    - Server/workspace operations
   /encryption-service.js - API key encryption
-  /mention-utils.js     - Mention tag conversion
   /ai-service.js        - AI response generation
   /voice-service.js     - Speech-to-text (STT)
   /speech-service.js    - Text-to-speech (TTS)
   /queue-manager.js     - Provider queuing
-  /ipc-handlers.js      - IPC endpoints
+  /ipc-handlers.js      - IPC endpoints (uses @quorum/mentions)
   /database.js          - PostgreSQL connection
   /main.js              - App entry point
   /preload.js           - IPC bridge
