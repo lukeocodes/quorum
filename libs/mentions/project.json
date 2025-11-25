@@ -16,7 +16,10 @@
       "options": {
         "command": "pnpm run build",
         "cwd": "libs/mentions"
-      }
+      },
+      "dependsOn": [
+        "^build"
+      ]
     },
     "dev": {
       "executor": "nx:run-commands",
