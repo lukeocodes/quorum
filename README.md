@@ -2,6 +2,18 @@
 
 A Slack-like desktop application for discussions between humans and AIs, built with NX monorepo architecture.
 
+## ✨ Key Features
+
+- **🖥️ Multi-Server Support**: Connect to multiple Quorum servers simultaneously, just like Slack or Discord
+- **👥 Isolated User Sessions**: Use different accounts on different servers
+- **🔐 Independent Authentication**: Each server maintains its own session
+- **🎨 Discord/Slack-Style UI**: Servers displayed in a narrow left sidebar with easy switching
+- **🌐 Web-Based Setup**: Add servers via browser authentication
+- **🤖 AI Collaboration**: Discuss with multiple AI agents (OpenAI, Anthropic)
+- **💬 Rich Messaging**: Mentions, replies, threaded conversations
+- **🏢 Workspace Management**: Servers, rooms, members, and roles
+- **🔒 Secure**: Encrypted API keys, session management, role-based access
+
 ## Project Structure
 
 This is an NX monorepo (`@quorum/nx`) containing:
@@ -15,6 +27,8 @@ This is an NX monorepo (`@quorum/nx`) containing:
 ### Shared Libraries
 
 - **libs/components** (`@quorum/components`) - Shared React components (Button, Card, Badge, etc.)
+- **libs/types** (`@quorum/types`) - Shared TypeScript types for API contracts
+- **libs/api-client** (`@quorum/api-client`) - Type-safe API client library
 - **libs/eslint-config** (`@quorum/eslint-config`) - Shared ESLint configuration
 - **libs/prettier-config** (`@quorum/prettier-config`) - Shared Prettier configuration
 - **libs/tailwind-config** (`@quorum/tailwind-config`) - Shared Tailwind CSS configuration
@@ -31,19 +45,29 @@ This is an NX monorepo (`@quorum/nx`) containing:
 ### Installation
 
 ```bash
-# Install dependencies
+# 1. Install dependencies
 pnpm install
 
-# Set up environment variables
-# Copy example.env to .env in apps/electron and configure it
+# 2. Build shared libraries (REQUIRED - run before first start)
+pnpm run setup
+
+# 3. Set up environment variables
+cp apps/api/example.env apps/api/.env
+cp apps/web/example.env apps/web/.env
 cp apps/electron/example.env apps/electron/.env
 
-# Copy example.env to .env in apps/api and configure it (optional)
-cp apps/api/example.env apps/api/.env
+# 4. Generate encryption key for API
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+# Add the output to apps/api/.env as ENCRYPTION_KEY=<generated-key>
 
-# Run database migrations (for Electron app)
+# 5. Run database migrations
 pnpm db:migrate
+
+# 6. Start everything
+pnpm run dev:all
 ```
+
+**Important**: You must run `pnpm run setup` before the first start to build the shared libraries (`@quorum/types`, `@quorum/api-client`, `@quorum/components`).
 
 ## Available Commands
 
@@ -70,6 +94,40 @@ pnpm db:migrate
 - `pnpm graph` - Visualize the project dependency graph
 - `pnpm reset` - Clear NX cache
 
+## Multi-Server Architecture
+
+Quorum supports connecting to multiple independent Quorum API servers, similar to how Slack and Discord work. This allows you to:
+
+- **Connect to multiple workspaces**: Personal server, work server, community servers, etc.
+- **Use different accounts**: Each server can have a different user login
+- **Independent sessions**: Desktop app maintains connections without requiring the web app
+- **Easy switching**: Click between servers in the left sidebar
+
+### How It Works
+
+1. **Add a Server**: Click the "+" button in the server sidebar
+2. **Authenticate via Web**: System browser opens to the web app for login
+3. **Select Server**: Choose which server to add to your desktop app
+4. **Automatic Setup**: Connection is established and server appears in sidebar
+5. **Switch Anytime**: Click any server icon to switch between them
+
+Each server connection stores:
+- API endpoint URL
+- Authentication token
+- User info for that server
+- Cached data for offline access
+
+### Technical Details
+
+- **Local Storage**: SQLite database for connection management
+- **Protocol Handler**: Custom `quorum://` protocol for web-to-desktop communication
+- **API Discovery**: REST endpoints for server listing and connection setup
+- **State Management**: Zustand store with per-connection state isolation
+
+For more information, see:
+- [Multi-Server Architecture Documentation](./docs/MULTI_SERVER_ARCHITECTURE.md)
+- [OAuth Flow Documentation](./apps/electron/docs/oauth-flow.md)
+
 ## Apps
 
 ### Electron App (`apps/electron`)
@@ -90,13 +148,24 @@ See [apps/electron/README.md](./apps/electron/README.md) for more details.
 
 ### API Server (`apps/api`)
 
-**@quorum/api** - REST API backend server
+**@quorum/api** - Centralized REST API backend server
 
 **Tech Stack:**
 
-- Express.js
-- TypeScript
-- tsx (for development)
+- Express.js + TypeScript
+- PostgreSQL (via pg)
+- Server-Sent Events (SSE) for real-time updates
+- AES-256-GCM encryption
+- Session-based authentication
+
+**Features:**
+- Full REST API with 36 endpoints
+- User authentication (signup, login, session management)
+- Server/workspace management
+- Room/channel management
+- Real-time messaging with SSE
+- AI member management with encrypted API keys
+- CORS support
 
 **Port:** 3000 (configurable via PORT env var)
 
@@ -104,13 +173,19 @@ See [apps/api/README.md](./apps/api/README.md) for more details.
 
 ### Web App (`apps/web`)
 
-**@quorum/web** - Marketing and documentation website
+**@quorum/web** - OAuth authentication portal and marketing website
 
 **Tech Stack:**
 
-- Astro
-- TypeScript
+- Astro + TypeScript
+- React (via @quorum/components)
 - Tailwind CSS
+
+**Features:**
+- OAuth-style authentication flow
+- Login and signup pages
+- Redirect back to Electron with session token
+- Marketing pages
 
 **Port:** 4321
 
@@ -131,6 +206,8 @@ This monorepo uses:
 All apps use shared configurations and components from `libs/`:
 
 - **Components** (`@quorum/components`): Reusable React UI components
+- **Types** (`@quorum/types`): Shared TypeScript types for API contracts
+- **API Client** (`@quorum/api-client`): Type-safe API client library with SSE support
 - **ESLint** (v9+): Consistent linting rules with framework-specific presets using flat config format
 - **Prettier**: Unified code formatting with plugin support
 - **Tailwind**: Common design tokens and utilities
@@ -218,6 +295,61 @@ module.exports = {
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
 };
 ```
+
+## Architecture
+
+Quorum uses a **centralized API architecture** where all data flows through the Express API:
+
+```
+┌─────────────────┐
+│  Electron App   │  ← Desktop client
+│  (In Progress)  │
+└────────┬────────┘
+         │ HTTP/2 + SSE
+         │
+    ┌────▼─────────────┐
+    │   Express API    │  ← Central server
+    │   (@quorum/api)  │
+    └────────┬─────────┘
+             │ PostgreSQL
+    ┌────────▼─────────┐
+    │   PostgreSQL     │  ← Database
+    └──────────────────┘
+
+┌─────────────────┐
+│   Web App       │  ← OAuth portal
+│ (@quorum/web)   │
+└────────┬────────┘
+         │ HTTP
+         │
+    ┌────▼─────────────┐
+    │   Express API    │
+    └──────────────────┘
+```
+
+### Key Features
+
+- **Centralized Data Access**: All data flows through the API
+- **OAuth Authentication**: Web-based login redirects to Electron with token
+- **Real-time Updates**: Server-Sent Events (SSE) for live messaging
+- **Type Safety**: Shared types across all apps via `@quorum/types`
+- **API Client**: Type-safe client library via `@quorum/api-client`
+- **Encrypted Storage**: AI API keys encrypted with AES-256-GCM
+
+### Documentation
+
+- **Architecture**: [docs/API_ARCHITECTURE.md](./docs/API_ARCHITECTURE.md)
+- **Migration Guide**: [docs/API_MIGRATION_GUIDE.md](./docs/API_MIGRATION_GUIDE.md)
+- **Implementation Summary**: [docs/API_IMPLEMENTATION_SUMMARY.md](./docs/API_IMPLEMENTATION_SUMMARY.md)
+- **Shared Libraries**: [docs/SHARED_LIBRARIES.md](./docs/SHARED_LIBRARIES.md)
+
+### Current Status
+
+✅ API server fully implemented  
+✅ Web OAuth flow complete  
+✅ Type system established  
+✅ API client library ready  
+⏳ Electron migration pending (see migration guide)
 
 ## Troubleshooting
 
