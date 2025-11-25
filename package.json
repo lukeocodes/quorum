@@ -4,18 +4,22 @@
   "description": "A Slack-like app for discussions between humans and AIs - NX Monorepo",
   "private": true,
   "scripts": {
+    "setup": "nx run types:build && nx run api-client:build && nx run components:build",
     "dev": "nx run electron:dev",
-    "dev:all": "nx run-many --target=dev --projects=electron,api,web --parallel",
+    "dev:all": "npm run setup && nx run-many --target=dev --projects=electron,api,web --parallel",
     "dev:electron": "nx run electron:dev",
-    "dev:api": "nx run api:dev",
+    "dev:api": "npm run setup && nx run api:dev",
     "dev:web": "nx run web:dev",
-    "build": "nx run-many --target=build --all",
+    "build": "npm run setup && nx run-many --target=build --all",
     "build:electron": "nx run electron:build",
     "build:api": "nx run api:build",
     "build:web": "nx run web:build",
     "preview:web": "nx run web:preview",
     "start:api": "nx run api:start",
     "db:migrate": "nx run electron:db:migrate",
+    "db:wipe:all": "npm run db:wipe:electron && npm run db:wipe:pg",
+    "db:wipe:electron": "bash scripts/wipe-electron-db.sh",
+    "db:wipe:pg": "node scripts/wipe-pg-db.js",
     "package:electron": "nx run electron:package",
     "graph": "nx graph",
     "reset": "nx reset"
@@ -37,6 +41,8 @@
     "@nx/js": "^22.1.1",
     "@nx/vite": "^22.1.1",
     "@nx/workspace": "^22.1.1",
-    "nx": "^22.1.1"
+    "dotenv": "^16.4.7",
+    "nx": "^22.1.1",
+    "pg": "^8.11.3"
   }
 }
