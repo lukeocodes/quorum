@@ -3,6 +3,8 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/prettier-config",
   "projectType": "library",
-  "tags": ["type:config", "scope:tooling"]
+  "tags": [
+    "type:config",
+    "scope:tooling"
+  ]
 }
-
