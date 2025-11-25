@@ -14,11 +14,11 @@ export const Card: React.FC<CardProps> = ({
   children,
   ...props
 }) => {
-  const baseStyles = 'rounded-lg bg-white';
+  const baseStyles = 'rounded-lg bg-off-white';
 
   const variantStyles = {
     default: 'shadow-sm',
-    bordered: 'border border-gray-200',
+    bordered: 'border border-border',
     elevated: 'shadow-lg',
   };
 
