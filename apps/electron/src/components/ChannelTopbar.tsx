@@ -1,13 +1,13 @@
 import { useState, useRef } from 'react';
 import { useAppStore } from '../store/appStore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUsers, faFileLines, faEllipsisVertical, faPencil, faTrash, faCopy } from '@fortawesome/free-solid-svg-icons';
+import { faUsers, faFileLines, faEllipsisVertical, faPencil, faTrash, faCopy, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@quorum/components';
 import AIMemberManager from './AIMemberManager';
 import ContextMenu, { ContextMenuItem } from './ContextMenu';
 
 export default function ChannelTopbar() {
-  const { currentRoom, aiMembers, summary } = useAppStore();
+  const { currentRoom, aiMembers, summary, contextMenuOpen, openContextMenu, closeContextMenu } = useAppStore();
   const [showAIManager, setShowAIManager] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [showContextMenu, setShowContextMenu] = useState(false);
@@ -95,6 +95,25 @@ export default function ChannelTopbar() {
             >
               <FontAwesomeIcon icon={faUsers} className="w-5 h-5" />
               AI Members ({aiMembers.length})
+            </Button>
+            <Button
+              variant="unstyled"
+              size="icon"
+              onClick={() => {
+                if (contextMenuOpen) {
+                  closeContextMenu()
+                } else {
+                  openContextMenu('channel-details')
+                }
+              }}
+              className={`p-2 rounded-lg transition-colors ${
+                contextMenuOpen
+                  ? 'bg-selected text-text-primary'
+                  : 'text-text-secondary hover:bg-subtle'
+              }`}
+              title="Channel details"
+            >
+              <FontAwesomeIcon icon={faInfoCircle} className="w-5 h-5" />
             </Button>
             <Button
               ref={menuButtonRef}

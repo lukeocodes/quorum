@@ -8,16 +8,30 @@ import ServerFooter from './ServerFooter'
 import ChannelTopbar from './ChannelTopbar'
 import ChannelChatArea from './ChannelChatArea'
 import ServerSelection from './ServerSelectionEmpty'
+import CollapsibleContextMenu from './CollapsibleContextMenu'
 
 export default function MainLayout() {
-  const { activeSession, servers, currentServer, currentRoom } = useAppStore()
+  const { 
+    activeSession, 
+    servers, 
+    currentServer, 
+    currentRoom, 
+    contextMenuOpen,
+    contextMenuWidth 
+  } = useAppStore()
   
   // Resizable Server column state
   const [serverColumnWidth, setServerColumnWidth] = useState(320) // Default 320px
   const [isResizing, setIsResizing] = useState(false)
   const [isLoadingWidth, setIsLoadingWidth] = useState(true)
-  const MIN_WIDTH = 240
-  const MAX_WIDTH = 600
+  const [serverColumnHidden, setServerColumnHidden] = useState(false)
+  
+  // Layout constraints
+  const APP_SIDEBAR_WIDTH = 80 // w-20 in Tailwind
+  const SERVER_MIN_WIDTH = 240
+  const SERVER_MAX_WIDTH = 600
+  const CHANNEL_MIN_WIDTH = 700
+  
   const saveWidthTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Load server column width from SQLite when session changes (app-level preference)
@@ -40,8 +54,8 @@ export default function MainLayout() {
 
         if (result.success && result.data) {
           const width = parseInt(result.data, 10)
-          console.log('🔍 Parsed width:', width, 'Valid range:', MIN_WIDTH, '-', MAX_WIDTH)
-          if (!isNaN(width) && width >= MIN_WIDTH && width <= MAX_WIDTH) {
+          console.log('🔍 Parsed width:', width, 'Valid range:', SERVER_MIN_WIDTH, '-', SERVER_MAX_WIDTH)
+          if (!isNaN(width) && width >= SERVER_MIN_WIDTH && width <= SERVER_MAX_WIDTH) {
             console.log('✅ Server column width loaded from SQLite:', width)
             setServerColumnWidth(width)
           } else {
@@ -93,15 +107,44 @@ export default function MainLayout() {
     }
   }, [serverColumnWidth, activeSession])
 
+  // Check if there's enough space for both server column and context menu
+  const hasSpaceForBoth = () => {
+    const windowWidth = window.innerWidth
+    const requiredWidth = APP_SIDEBAR_WIDTH + serverColumnWidth + CHANNEL_MIN_WIDTH + contextMenuWidth
+    return windowWidth >= requiredWidth
+  }
+
+  // Hide/show server column when context menu opens/closes
+  useEffect(() => {
+    if (isLoadingWidth) return
+
+    if (contextMenuOpen) {
+      // Context menu is opening - check if we need to hide server column
+      if (!hasSpaceForBoth()) {
+        setServerColumnHidden(true)
+      }
+    } else {
+      // Context menu is closing - always show server column again
+      if (serverColumnHidden) {
+        setServerColumnHidden(false)
+      }
+    }
+  }, [contextMenuOpen, contextMenuWidth, serverColumnWidth, isLoadingWidth])
+
   // Handle resize
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing) return
       
-      const newWidth = e.clientX - 80 // Account for AppSidebar width (80px = w-20)
-      if (newWidth >= MIN_WIDTH && newWidth <= MAX_WIDTH) {
-        setServerColumnWidth(newWidth)
-      }
+      const newWidth = e.clientX - APP_SIDEBAR_WIDTH
+      
+      // Constrain to valid range
+      const constrainedWidth = Math.max(
+        SERVER_MIN_WIDTH,
+        Math.min(newWidth, SERVER_MAX_WIDTH)
+      )
+      
+      setServerColumnWidth(constrainedWidth)
     }
 
     const handleMouseUp = () => {
@@ -145,12 +188,14 @@ export default function MainLayout() {
           <>
             {/* Server column: Resizable column with ServerTopbar, ServerSidebar, and ServerFooter */}
             <div 
-              className="flex flex-col h-full overflow-hidden bg-navigation/95 border-r border-border-dark relative"
+              data-server-column
+              className="flex flex-col h-full overflow-hidden bg-navigation/95 border-r border-border-dark relative transition-all duration-300 ease-in-out"
               style={{ 
-                width: `${serverColumnWidth}px`, 
-                minWidth: `${MIN_WIDTH}px`, 
-                maxWidth: `${MAX_WIDTH}px`,
-                flexShrink: 0
+                width: serverColumnHidden ? '0px' : `${serverColumnWidth}px`,
+                minWidth: serverColumnHidden ? '0px' : `${SERVER_MIN_WIDTH}px`, 
+                maxWidth: serverColumnHidden ? '0px' : `${SERVER_MAX_WIDTH}px`,
+                opacity: serverColumnHidden ? 0 : 1,
+                flexShrink: 0,
               }}
             >
               <ServerTopbar />
@@ -158,28 +203,40 @@ export default function MainLayout() {
               <ServerFooter />
               
               {/* Resize Handle */}
-              <div
-                className={`
-                  absolute top-0 right-0 w-1 h-full cursor-col-resize
-                  hover:bg-selected/50 transition-colors z-10
-                  ${isResizing ? 'bg-selected' : ''}
-                `}
-                onMouseDown={(e) => {
-                  e.preventDefault()
-                  setIsResizing(true)
-                }}
-                title="Drag to resize server column"
-              />
+              {!serverColumnHidden && (
+                <div
+                  className={`
+                    absolute top-0 right-0 w-1 h-full cursor-col-resize
+                    hover:bg-selected/50 transition-colors z-10
+                    ${isResizing ? 'bg-selected' : ''}
+                  `}
+                  onMouseDown={(e) => {
+                    e.preventDefault()
+                    setIsResizing(true)
+                  }}
+                  title="Drag to resize server column"
+                />
+              )}
             </div>
             
-            {/* Right column: Channel topbar + Channel chat area */}
+            {/* Center column: Channel topbar + Channel chat area */}
             {currentRoom ? (
-              <div className="flex-1 flex flex-col overflow-hidden">
+              <div 
+                className="flex-1 flex flex-col overflow-hidden"
+                style={{ 
+                  minWidth: `${CHANNEL_MIN_WIDTH}px`
+                }}
+              >
                 <ChannelTopbar />
                 <ChannelChatArea />
               </div>
             ) : (
-              <div className="flex-1 flex items-center justify-center">
+              <div 
+                className="flex-1 flex items-center justify-center"
+                style={{ 
+                  minWidth: `${CHANNEL_MIN_WIDTH}px`
+                }}
+              >
                 <div className="text-center">
                   <div className="text-6xl mb-4">💬</div>
                   <h2 className="text-2xl font-semibold text-text-primary mb-2">
@@ -191,6 +248,9 @@ export default function MainLayout() {
                 </div>
               </div>
             )}
+
+            {/* Right column: Collapsible Context Menu */}
+            {contextMenuOpen && <CollapsibleContextMenu />}
           </>
         ) : (
           <ServerSelection />
