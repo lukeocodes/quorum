@@ -14,7 +14,10 @@
       "options": {
         "command": "pnpm --filter @quorum/api dev",
         "cwd": "{workspaceRoot}"
-      }
+      },
+      "dependsOn": [
+        "^build"
+      ]
     },
     "build": {
       "executor": "nx:run-commands",
@@ -24,7 +27,10 @@
       "options": {
         "command": "pnpm --filter @quorum/api build",
         "cwd": "{workspaceRoot}"
-      }
+      },
+      "dependsOn": [
+        "^build"
+      ]
     },
     "start": {
       "executor": "nx:run-commands",
