@@ -13,7 +13,10 @@
       "options": {
         "command": "pnpm --filter @quorum/electron dev",
         "cwd": "{workspaceRoot}"
-      }
+      },
+      "dependsOn": [
+        "^build"
+      ]
     },
     "dev:vite": {
       "executor": "@nx/vite:dev-server",
@@ -51,7 +54,10 @@
         "production": {
           "mode": "production"
         }
-      }
+      },
+      "dependsOn": [
+        "^build"
+      ]
     },
     "preview": {
       "executor": "nx:run-commands",
