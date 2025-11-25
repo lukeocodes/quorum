@@ -81,6 +81,11 @@ interface AppState {
   aiThinking: boolean
   mentionableMembers: MentionableMembers | null
 
+  // Context Menu state
+  contextMenuOpen: boolean
+  contextMenuContent: 'channel-details' | 'user-profile' | null
+  contextMenuWidth: number
+
   // Session actions
   setActiveSession: (session: UserSession | null) => void
   fetchServersForSession: (sessionId: number) => Promise<void>
@@ -115,6 +120,11 @@ interface AppState {
   // Activity tracking
   setRoomActivity: (roomId: number, active: boolean) => void
   setAIThinking: (thinking: boolean) => void
+
+  // Context Menu actions
+  openContextMenu: (content: 'channel-details' | 'user-profile') => void
+  closeContextMenu: () => void
+  setContextMenuWidth: (width: number) => void
 }
 
 // Helper function to get API credentials for the current server
@@ -159,6 +169,11 @@ export const useAppStore = create<AppState>((set, get) => ({
   roomsWithActivity: new Set(),
   aiThinking: false,
   mentionableMembers: null,
+
+  // Context Menu state
+  contextMenuOpen: false,
+  contextMenuContent: null,
+  contextMenuWidth: 400,
 
   // Session actions
   setActiveSession: (session) => {
@@ -750,6 +765,19 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   setAIThinking: (thinking) => {
     set({ aiThinking: thinking })
+  },
+
+  // Context Menu actions
+  openContextMenu: (content) => {
+    set({ contextMenuOpen: true, contextMenuContent: content })
+  },
+
+  closeContextMenu: () => {
+    set({ contextMenuOpen: false })
+  },
+
+  setContextMenuWidth: (width) => {
+    set({ contextMenuWidth: width })
   },
 }))
 
