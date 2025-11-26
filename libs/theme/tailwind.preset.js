@@ -68,6 +68,20 @@ module.exports = {
           900: '#7f1d1d',
           950: '#450a0a',
         },
+        // Semantic UI colors
+        background: 'var(--color-background, #ffffff)',
+        surface: 'var(--color-surface, #f8fafc)',
+        'surface-hover': 'var(--color-surface-hover, #f1f5f9)',
+        border: 'var(--color-border, #e2e8f0)',
+        muted: 'var(--color-muted, #94a3b8)',
+        selected: 'var(--color-selected, #0ea5e9)',
+        'off-white': 'var(--color-off-white, #f8fafc)',
+        text: {
+          primary: 'var(--color-text-primary, #0f172a)',
+          secondary: 'var(--color-text-secondary, #475569)',
+          tertiary: 'var(--color-text-tertiary, #94a3b8)',
+          inverse: 'var(--color-text-inverse, #ffffff)',
+        },
       },
       fontFamily: {
         sans: [
