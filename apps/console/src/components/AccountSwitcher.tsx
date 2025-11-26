@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import type { User } from '@quorum/types';
-import { Button } from '@quorum/components';
+import type { User } from '@quorum/proto';
+import { Button } from '@quorum/ui';
 import { getAccounts, switchAccount, logoutCurrentAccount, getCurrentAccount } from '../utils/auth';
 import type { StoredAccount } from '../utils/auth';
 

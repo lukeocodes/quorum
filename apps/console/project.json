@@ -1,0 +1,68 @@
+{
+  "name": "console",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/console/src",
+  "projectType": "application",
+  "tags": [
+    "npm:private",
+    "npm:astro",
+    "npm:web",
+    "npm:typescript",
+    "npm:tailwind",
+    "type:app",
+    "platform:web",
+    "scope:frontend"
+  ],
+  "targets": {
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm --filter @quorum/console dev",
+        "cwd": "{workspaceRoot}"
+      },
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "astro": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "astro",
+        "cwd": "apps/console"
+      }
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm --filter @quorum/console dev",
+        "cwd": "{workspaceRoot}"
+      },
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [
+        "{workspaceRoot}/apps/console/dist"
+      ],
+      "options": {
+        "command": "pnpm --filter @quorum/console build",
+        "cwd": "{workspaceRoot}"
+      },
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "preview": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm --filter @quorum/console preview",
+        "cwd": "{workspaceRoot}"
+      },
+      "dependsOn": [
+        "build"
+      ]
+    }
+  }
+}

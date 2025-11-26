@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Badge } from '@quorum/components';
+import { Button, Badge } from '@quorum/ui';
 
 interface HeroProps {
   onDownload?: () => void;

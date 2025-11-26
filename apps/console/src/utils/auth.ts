@@ -1,4 +1,4 @@
-import type { User } from '@quorum/types';
+import type { User } from '@quorum/proto';
 
 export interface StoredAccount {
   user: User;

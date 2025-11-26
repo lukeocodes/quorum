@@ -1,4 +1,4 @@
-import baseConfig from '../../libs/tailwind-config/index.js';
+import baseConfig from '@quorum/theme/tailwind';
 
 /** @type {import('tailwindcss').Config} */
 export default {

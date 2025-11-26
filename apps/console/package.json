@@ -1,7 +1,7 @@
 {
-  "name": "@quorum/web",
+  "name": "@quorum/console",
   "version": "0.1.0",
-  "description": "Quorum Web - Astro frontend",
+  "description": "Quorum Console - Marketing, signup, login, server management, settings",
   "type": "module",
   "private": true,
   "scripts": {
@@ -15,7 +15,9 @@
     "astro",
     "web",
     "typescript",
-    "tailwind"
+    "tailwind",
+    "console",
+    "marketing"
   ],
   "author": "",
   "license": "MIT",
@@ -23,7 +25,8 @@
     "astro": "^4.16.18",
     "@astrojs/react": "^3.6.2",
     "@astrojs/tailwind": "^5.1.4",
-    "@quorum/components": "workspace:*",
+    "@quorum/ui": "workspace:*",
+    "@quorum/theme": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwindcss": "^3.4.18"
@@ -33,4 +36,3 @@
     "typescript": "^5.3.3"
   }
 }
-
