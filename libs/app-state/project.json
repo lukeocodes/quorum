@@ -1,0 +1,39 @@
+{
+  "name": "app-state",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/app-state/src",
+  "projectType": "library",
+  "tags": [
+    "npm:private",
+    "npm:react",
+    "npm:state",
+    "type:lib",
+    "scope:shared",
+    "platform:react"
+  ],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [
+        "{workspaceRoot}/libs/app-state/dist"
+      ],
+      "options": {
+        "command": "tsup src/index.ts --format cjs,esm --dts",
+        "cwd": "libs/app-state"
+      },
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsup src/index.ts --format cjs,esm --dts --watch",
+        "cwd": "libs/app-state"
+      },
+      "dependsOn": [
+        "^build"
+      ]
+    }
+  }
+}
