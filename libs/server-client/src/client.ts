@@ -1,18 +1,5 @@
 import type {
   ApiResponse,
-  SignupRequest,
-  SignupResponse,
-  LoginRequest,
-  LoginResponse,
-  ValidateTokenResponse,
-  CreateServerRequest,
-  CreateServerResponse,
-  UpdateServerRequest,
-  GetServersResponse,
-  GetServerResponse,
-  CreateInviteRequest,
-  CreateInviteResponse,
-  JoinServerResponse,
   CreateChannelRequest,
   CreateChannelResponse,
   UpdateChannelRequest,
@@ -30,20 +17,23 @@ import type {
   GetAIMembersResponse,
   GetAIMemberResponse,
   SSEEvent,
-} from '@quorum/types';
+} from '@quorum/proto';
 
-export interface QuorumApiClientConfig {
+export interface QuorumServerClientConfig {
   baseUrl: string;
   token?: string;
   onTokenChange?: (token: string | null) => void;
 }
 
-export class QuorumApiClient {
+/**
+ * Client SDK for Quorum API Server (channels, messages, ai-members, real-time)
+ */
+export class QuorumServerClient {
   private baseUrl: string;
   private token: string | null = null;
   private onTokenChange?: (token: string | null) => void;
 
-  constructor(config: QuorumApiClientConfig) {
+  constructor(config: QuorumServerClientConfig) {
     this.baseUrl = config.baseUrl;
     this.token = config.token || null;
     this.onTokenChange = config.onTokenChange;
@@ -94,132 +84,6 @@ export class QuorumApiClient {
     }
 
     return data;
-  }
-
-  // ========== Authentication ==========
-
-  async signup(data: SignupRequest): Promise<SignupResponse> {
-    const response = await this.request<SignupResponse>('/auth/signup', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-    
-    if (response.data) {
-      this.setToken(response.data.token);
-      return response.data;
-    }
-    throw new Error('Signup failed');
-  }
-
-  async login(data: LoginRequest): Promise<LoginResponse> {
-    const response = await this.request<LoginResponse>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-    
-    if (response.data) {
-      this.setToken(response.data.token);
-      return response.data;
-    }
-    throw new Error('Login failed');
-  }
-
-  async logout(): Promise<void> {
-    await this.request('/auth/logout', {
-      method: 'POST',
-    });
-    this.setToken(null);
-  }
-
-  async getCurrentUser(): Promise<ValidateTokenResponse> {
-    const response = await this.request<ValidateTokenResponse>('/auth/me');
-    if (response.data) {
-      return response.data;
-    }
-    throw new Error('Failed to get current user');
-  }
-
-  async validateToken(token: string): Promise<ValidateTokenResponse> {
-    const response = await this.request<ValidateTokenResponse>('/auth/validate', {
-      method: 'POST',
-      body: JSON.stringify({ token }),
-    });
-    if (response.data) {
-      return response.data;
-    }
-    throw new Error('Token validation failed');
-  }
-
-  // ========== Servers ==========
-
-  async getServers(): Promise<GetServersResponse> {
-    const response = await this.request<GetServersResponse>('/servers');
-    return response.data || { servers: [] };
-  }
-
-  async createServer(data: CreateServerRequest): Promise<CreateServerResponse> {
-    const response = await this.request<CreateServerResponse>('/servers', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-    return response.data!;
-  }
-
-  async getServer(serverId: number): Promise<GetServerResponse> {
-    const response = await this.request<GetServerResponse>(`/servers/${serverId}`);
-    return response.data!;
-  }
-
-  async updateServer(serverId: number, data: UpdateServerRequest): Promise<CreateServerResponse> {
-    const response = await this.request<CreateServerResponse>(`/servers/${serverId}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
-    return response.data!;
-  }
-
-  async deleteServer(serverId: number): Promise<void> {
-    await this.request(`/servers/${serverId}`, {
-      method: 'DELETE',
-    });
-  }
-
-  async getServerMembers(serverId: number): Promise<any> {
-    const response = await this.request(`/servers/${serverId}/members`);
-    return response.data;
-  }
-
-  async createInvite(serverId: number, data: CreateInviteRequest): Promise<CreateInviteResponse> {
-    const response = await this.request<CreateInviteResponse>(`/servers/${serverId}/invites`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-    return response.data!;
-  }
-
-  async joinServerWithInvite(code: string): Promise<JoinServerResponse> {
-    const response = await this.request<JoinServerResponse>(`/servers/join/${code}`, {
-      method: 'POST',
-    });
-    return response.data!;
-  }
-
-  async getPublicServers(): Promise<GetServersResponse> {
-    const response = await this.request<GetServersResponse>('/servers/public');
-    return response.data || { servers: [] };
-  }
-
-  async joinPublicServer(serverId: number): Promise<any> {
-    const response = await this.request(`/servers/public/${serverId}/join`, {
-      method: 'POST',
-    });
-    return response.data;
-  }
-
-  async leaveServer(serverId: number): Promise<void> {
-    await this.request(`/servers/${serverId}/leave`, {
-      method: 'POST',
-    });
   }
 
   // ========== Channels ==========

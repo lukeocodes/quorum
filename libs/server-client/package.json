@@ -1,0 +1,35 @@
+{
+  "name": "@quorum/server-client",
+  "version": "0.1.0",
+  "description": "Client SDK for Quorum API Server (messages, channels, media)",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch"
+  },
+  "keywords": [
+    "api",
+    "client",
+    "http",
+    "messages",
+    "channels"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@quorum/proto": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  }
+}
+

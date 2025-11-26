@@ -1,9 +1,13 @@
 {
-  "name": "api-client",
+  "name": "server-client",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/api-client/src",
+  "sourceRoot": "libs/server-client/src",
   "projectType": "library",
   "tags": [
+    "npm:public",
+    "npm:api",
+    "npm:client",
+    "npm:http",
     "type:library",
     "scope:shared"
   ],
@@ -15,22 +19,21 @@
       ],
       "options": {
         "command": "pnpm run build",
-        "cwd": "libs/api-client"
-      }
+        "cwd": "libs/server-client"
+      },
+      "dependsOn": [
+        "^build"
+      ]
     },
     "dev": {
       "executor": "nx:run-commands",
       "options": {
         "command": "pnpm run dev",
-        "cwd": "libs/api-client"
-      }
-    },
-    "typecheck": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "pnpm run typecheck",
-        "cwd": "libs/api-client"
-      }
+        "cwd": "libs/server-client"
+      },
+      "dependsOn": [
+        "^build"
+      ]
     }
   }
 }

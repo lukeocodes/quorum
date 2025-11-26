@@ -1,7 +1,7 @@
 {
-  "name": "@quorum/api-client",
+  "name": "@quorum/auth-client",
   "version": "0.1.0",
-  "description": "API client library for Quorum",
+  "description": "Client SDK for Quorum API Core (auth, identity, discovery)",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -19,16 +19,16 @@
   "keywords": [
     "api",
     "client",
-    "http"
+    "http",
+    "auth"
   ],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@quorum/types": "workspace:*"
+    "@quorum/proto": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.0.1",
     "typescript": "^5.3.3"
   }
 }
-
