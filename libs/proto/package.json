@@ -1,7 +1,7 @@
 {
-  "name": "@quorum/types",
+  "name": "@quorum/proto",
   "version": "0.1.0",
-  "description": "Shared TypeScript types for Quorum API",
+  "description": "Shared types, schemas, and DTOs for Quorum",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -19,7 +19,9 @@
   "keywords": [
     "types",
     "typescript",
-    "api"
+    "api",
+    "proto",
+    "schemas"
   ],
   "author": "",
   "license": "MIT",
@@ -28,4 +30,3 @@
     "typescript": "^5.3.3"
   }
 }
-

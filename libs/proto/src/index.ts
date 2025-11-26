@@ -1,7 +1,7 @@
 /**
- * @quorum/types
+ * @quorum/proto
  * 
- * Shared TypeScript types for Quorum API
+ * Shared types, schemas, and DTOs for Quorum
  */
 
 // Models
@@ -9,4 +9,3 @@ export * from './models';
 
 // API types
 export * from './api';
-

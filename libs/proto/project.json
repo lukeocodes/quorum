@@ -1,9 +1,13 @@
 {
-  "name": "types",
+  "name": "proto",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/types/src",
+  "sourceRoot": "libs/proto/src",
   "projectType": "library",
   "tags": [
+    "npm:public",
+    "npm:types",
+    "npm:typescript",
+    "npm:api",
     "type:library",
     "scope:shared"
   ],
@@ -15,21 +19,21 @@
       ],
       "options": {
         "command": "pnpm run build",
-        "cwd": "libs/types"
+        "cwd": "libs/proto"
       }
     },
     "dev": {
       "executor": "nx:run-commands",
       "options": {
         "command": "pnpm run dev",
-        "cwd": "libs/types"
+        "cwd": "libs/proto"
       }
     },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
         "command": "pnpm run typecheck",
-        "cwd": "libs/types"
+        "cwd": "libs/proto"
       }
     }
   }
