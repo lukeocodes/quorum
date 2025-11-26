@@ -1,0 +1,35 @@
+{
+  "name": "storage",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/storage/src",
+  "projectType": "library",
+  "tags": [
+    "npm:private",
+    "npm:storage",
+    "npm:cache",
+    "type:lib",
+    "scope:shared"
+  ],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [
+        "{workspaceRoot}/libs/storage/dist"
+      ],
+      "options": {
+        "command": "tsup src/index.ts --format cjs,esm --dts",
+        "cwd": "libs/storage"
+      },
+      "dependsOn": ["^build"]
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsup src/index.ts --format cjs,esm --dts --watch",
+        "cwd": "libs/storage"
+      },
+      "dependsOn": ["^build"]
+    }
+  }
+}
+
