@@ -5,7 +5,7 @@
 
 set -e
 
-ELECTRON_DB="apps/electron/quorum.db"
+ELECTRON_DB="apps/app-electron/quorum.db"
 
 echo "🗑️  Wiping Electron SQLite database..."
 
@@ -19,4 +19,3 @@ fi
 echo "✨ Electron database wiped successfully"
 echo ""
 echo "💡 The database will be recreated automatically when you run the Electron app"
-

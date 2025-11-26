@@ -1,4 +1,4 @@
-const baseConfig = require('./libs/tailwind-config');
+const baseConfig = require('@quorum/theme/tailwind');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
