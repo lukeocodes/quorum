@@ -1,0 +1,58 @@
+{
+  "name": "api-server",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/api-server/src",
+  "projectType": "application",
+  "tags": [
+    "npm:private",
+    "npm:express",
+    "npm:api",
+    "npm:typescript",
+    "type:app",
+    "platform:node",
+    "scope:backend"
+  ],
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm --filter @quorum/api-server dev",
+        "cwd": "{workspaceRoot}"
+      },
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [
+        "{workspaceRoot}/apps/api-server/dist"
+      ],
+      "options": {
+        "command": "pnpm --filter @quorum/api-server build",
+        "cwd": "{workspaceRoot}"
+      },
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm --filter @quorum/api-server start",
+        "cwd": "{workspaceRoot}"
+      },
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm --filter @quorum/api-server lint",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  }
+}
+
