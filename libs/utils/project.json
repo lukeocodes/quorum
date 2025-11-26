@@ -1,0 +1,34 @@
+{
+  "name": "utils",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/utils/src",
+  "projectType": "library",
+  "tags": [
+    "npm:private",
+    "npm:utils",
+    "type:lib",
+    "scope:shared"
+  ],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [
+        "{workspaceRoot}/libs/utils/dist"
+      ],
+      "options": {
+        "command": "tsup src/index.ts --format cjs,esm --dts",
+        "cwd": "libs/utils"
+      },
+      "dependsOn": ["^build"]
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsup src/index.ts --format cjs,esm --dts --watch",
+        "cwd": "libs/utils"
+      },
+      "dependsOn": ["^build"]
+    }
+  }
+}
+

@@ -1,4 +1,4 @@
-import { TagType } from '@quorum/types';
+import { TagType } from '@quorum/proto';
 import { parseAllTags } from './parser';
 
 /**

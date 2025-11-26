@@ -1,5 +1,5 @@
 import React from 'react';
-import { TagType } from '@quorum/types';
+import { TagType } from '@quorum/proto';
 import { parseAllTags } from './parser';
 import type { EntityLookup } from './converter';
 

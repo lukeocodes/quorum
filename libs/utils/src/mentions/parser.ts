@@ -1,4 +1,4 @@
-import { TagType, ParsedTag, TAG_PATTERNS } from '@quorum/types';
+import { TagType, ParsedTag, TAG_PATTERNS } from '@quorum/proto';
 
 /**
  * Parse all tags from message content

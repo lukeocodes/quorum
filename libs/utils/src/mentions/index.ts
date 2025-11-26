@@ -1,13 +1,11 @@
 /**
- * @quorum/mentions
- * 
- * Comprehensive tagging and mention system for Quorum
+ * Mentions - Tag and mention utilities
  * Supports: users, AI, channels, apps, servers, URLs, and markdown
  */
 
-// Re-export types from @quorum/types
-export { TagType, TAG_PATTERNS } from '@quorum/types';
-export type { ParsedTag } from '@quorum/types';
+// Re-export types from @quorum/proto
+export { TagType, TAG_PATTERNS } from '@quorum/proto';
+export type { ParsedTag } from '@quorum/proto';
 
 // Parser utilities
 export { parseAllTags, extractAllTagIds, extractMentionIds } from './parser';
