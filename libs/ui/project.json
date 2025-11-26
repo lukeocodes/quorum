@@ -1,9 +1,13 @@
 {
-  "name": "components",
+  "name": "ui",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/components/src",
+  "sourceRoot": "libs/ui/src",
   "projectType": "library",
   "tags": [
+    "npm:private",
+    "npm:react",
+    "npm:components",
+    "npm:ui",
     "type:lib",
     "scope:shared",
     "platform:react"
@@ -12,25 +16,27 @@
     "build": {
       "executor": "nx:run-commands",
       "outputs": [
-        "{workspaceRoot}/libs/components/dist"
+        "{workspaceRoot}/libs/ui/dist"
       ],
       "options": {
         "command": "tsup src/index.ts --format cjs,esm --dts",
-        "cwd": "libs/components"
-      }
+        "cwd": "libs/ui"
+      },
+      "dependsOn": ["^build"]
     },
     "dev": {
       "executor": "nx:run-commands",
       "options": {
         "command": "tsup src/index.ts --format cjs,esm --dts --watch",
-        "cwd": "libs/components"
-      }
+        "cwd": "libs/ui"
+      },
+      "dependsOn": ["^build"]
     },
     "lint": {
       "executor": "nx:run-commands",
       "options": {
         "command": "eslint src --ext .ts,.tsx",
-        "cwd": "libs/components"
+        "cwd": "libs/ui"
       }
     }
   }

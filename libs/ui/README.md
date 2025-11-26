@@ -98,7 +98,7 @@ A label component for status indicators, tags, or counts.
 
 ## Styling
 
-Components use Tailwind CSS classes and rely on the shared `@quorum/tailwind-config` for consistent theming. Make sure your app is configured with Tailwind CSS.
+Components use Tailwind CSS classes and rely on the shared `@quorum/theme/tailwind` for consistent theming. Make sure your app is configured with Tailwind CSS.
 
 ### Color Palette
 
