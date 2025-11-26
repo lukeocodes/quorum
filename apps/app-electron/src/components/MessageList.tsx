@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useAppStore } from '../store/appStore'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleUser, faReply, faEllipsisVertical, faCopy, faTrash, faPencil } from '@fortawesome/free-solid-svg-icons'
-import { Button } from '@quorum/components'
-import { renderMessageWithTags } from '@quorum/mentions'
+import { Button } from '@quorum/ui'
+import { renderMessageWithTags } from '@quorum/utils'
 import ContextMenu, { ContextMenuItem } from './ContextMenu'
 
 interface MessageListProps {
@@ -27,7 +27,7 @@ export default function MessageList({ onReply }: MessageListProps) {
   const renderMessageContent = (content: string) => {
     if (!mentionableMembers) return content
     
-    // Render tags with proper styling using @quorum/mentions
+    // Render tags with proper styling using @quorum/utils
     return renderMessageWithTags(
       content,
       {

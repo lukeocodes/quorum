@@ -4,7 +4,7 @@ import {
   faUserPlus,
   faExternalLinkAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import { Button } from "@quorum/components";
+import { Button } from "@quorum/ui";
 
 const WEB_APP_URL = import.meta.env.VITE_WEB_APP_URL || "http://localhost:4321";
 

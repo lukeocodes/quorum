@@ -149,22 +149,22 @@ The frontend converts tags to readable names:
   - `ParsedTag` interface
   - `TAG_PATTERNS` constants
 
-#### `@quorum/mentions` (`libs/mentions`)
-**Core mention and tag handling library - use this for all new code!**
+#### `@quorum/utils` (`libs/utils`)
+**Common utilities including mentions/tags - use this for all new code!**
 
-- `src/parser.ts` - Tag parsing utilities
+- `src/mentions/parser.ts` - Tag parsing utilities
   - `parseAllTags()` - Parse all tag types from content
   - `extractAllTagIds()` - Extract all tag IDs by type
   - `extractMentionIds()` - Extract mention IDs (legacy)
 
-- `src/converter.ts` - Tag conversion utilities
+- `src/mentions/converter.ts` - Tag conversion utilities
   - `convertMentionsToTags()` - Convert @names to storage tags
   - `convertTagsToDisplay()` - Convert tags to display (sync)
   - `convertTagsToDisplayAsync()` - Convert tags to display (async)
   - `EntityLookup` interface
   - `EntityResolvers` interface
 
-- `src/renderer.tsx` - React rendering utilities
+- `src/mentions/renderer.tsx` - React rendering utilities
   - `renderMessageWithTags()` - Render tags as styled React elements
   - `<MessageWithTags />` - React component wrapper
   - `TagClickHandlers` interface
@@ -172,30 +172,30 @@ The frontend converts tags to readable names:
 
 ### Application Implementations
 
-**All applications now import directly from `@quorum/mentions` - no wrapper files!**
+**All applications now import directly from `@quorum/utils` - no wrapper files!**
 
 #### API (`apps/api`)
-- `src/services/message.service.ts` - Uses `@quorum/mentions` for tag extraction
-- All API code imports directly: `import { ... } from '@quorum/mentions'`
+- `src/services/message.service.ts` - Uses `@quorum/utils` for tag extraction
+- All API code imports directly: `import { ... } from '@quorum/utils'`
 
 #### Electron Backend (`apps/electron/electron`)
-- `ipc-handlers.js` - Uses `@quorum/mentions` for tag conversion
-  - `require('@quorum/mentions')` for CJS compatibility
+- `ipc-handlers.js` - Uses `@quorum/utils` for tag conversion
+  - `require('@quorum/utils')` for CJS compatibility
 - `queue-manager.js` - AI response queuing
 - `database/schema.sql` - Polymorphic member schema
 
 #### Electron Frontend (`apps/electron/src`)
-- `components/MessageList.tsx` - Uses `renderMessageWithTags()` from `@quorum/mentions`
+- `components/MessageList.tsx` - Uses `renderMessageWithTags()` from `@quorum/utils`
 - `components/MessageInput.tsx` - Reply state & tag autocomplete
 - `store/appStore.ts` - Entity management
 
 **Import pattern:**
 ```typescript
 // TypeScript/ESM
-import { parseAllTags, renderMessageWithTags } from '@quorum/mentions';
+import { parseAllTags, renderMessageWithTags } from '@quorum/utils';
 
 // CommonJS (Node.js)
-const { parseAllTags, convertMentionsToTags } = require('@quorum/mentions');
+const { parseAllTags, convertMentionsToTags } = require('@quorum/utils');
 ```
 
 ## API Endpoints
@@ -216,7 +216,7 @@ window.electronAPI.sendMessage(roomId, content, replyToMessageId?)
 ### Parsing Tags (TypeScript/React)
 
 ```typescript
-import { parseAllTags, renderMessageWithTags } from '@quorum/mentions';
+import { parseAllTags, renderMessageWithTags } from '@quorum/utils';
 import { useAppStore } from '../store/appStore';
 
 function MessageComponent({ content }: { content: string }) {
@@ -250,7 +250,7 @@ function MessageComponent({ content }: { content: string }) {
 ### Converting User Input to Tags (Backend/Frontend)
 
 ```typescript
-import { convertMentionsToTags, extractAllTagIds } from '@quorum/mentions';
+import { convertMentionsToTags, extractAllTagIds } from '@quorum/utils';
 
 // User types: "Hey @john, check #general"
 const userInput = "Hey @john, check #general";
@@ -272,7 +272,7 @@ const tagIds = extractAllTagIds(result.content);
 ### Displaying Tags
 
 ```typescript
-import { convertTagsToDisplay } from '@quorum/mentions';
+import { convertTagsToDisplay } from '@quorum/utils';
 
 const storedContent = "Hey <@user:1>, check <#channel:10>";
 
@@ -284,7 +284,7 @@ const displayContent = convertTagsToDisplay(storedContent, {
 // displayContent: "Hey @John Doe, check #general"
 
 // Async version with resolvers (server-side)
-import { convertTagsToDisplayAsync } from '@quorum/mentions';
+import { convertTagsToDisplayAsync } from '@quorum/utils';
 
 const displayContentAsync = await convertTagsToDisplayAsync(storedContent, {
   getUser: async (id) => await database.getUserById(id),
@@ -295,7 +295,7 @@ const displayContentAsync = await convertTagsToDisplayAsync(storedContent, {
 ### URL Handling
 
 ```typescript
-import { parseAllTags } from '@quorum/mentions';
+import { parseAllTags } from '@quorum/utils';
 
 // Direct URLs: <https://example.com>
 const directURL = "Check out <https://example.com> for more info";

@@ -195,7 +195,7 @@ See [docs/architecture.md](docs/architecture.md) for detailed design.
   /voice-service.js     - Speech-to-text (STT)
   /speech-service.js    - Text-to-speech (TTS)
   /queue-manager.js     - Provider queuing
-  /ipc-handlers.js      - IPC endpoints (uses @quorum/mentions)
+  /ipc-handlers.js      - IPC endpoints (uses @quorum/utils)
   /database.js          - PostgreSQL connection
   /main.js              - App entry point
   /preload.js           - IPC bridge

@@ -1,7 +1,7 @@
 import { useAppStore } from '../store/appStore'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHashtag, faUsers, faCalendar, faFileLines } from '@fortawesome/free-solid-svg-icons'
-import { Button } from '@quorum/components'
+import { Button } from '@quorum/ui'
 
 export default function ChannelDetails() {
   const { currentRoom, aiMembers, rooms } = useAppStore()

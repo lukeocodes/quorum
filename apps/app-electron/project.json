@@ -1,17 +1,29 @@
 {
-  "name": "electron",
+  "name": "app-electron",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/electron/src",
+  "sourceRoot": "apps/app-electron/src",
   "projectType": "application",
   "tags": [
+    "npm:private",
+    "npm:electron",
+    "npm:ai",
+    "npm:chat",
+    "npm:discussion",
     "type:app",
     "platform:electron"
   ],
   "targets": {
+    "postinstall": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "electron-rebuild -f -w better-sqlite3",
+        "cwd": "apps/app-electron"
+      }
+    },
     "dev": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "pnpm --filter @quorum/electron dev",
+        "command": "pnpm --filter @quorum/app-electron dev",
         "cwd": "{workspaceRoot}"
       },
       "dependsOn": [
@@ -22,11 +34,11 @@
       "executor": "@nx/vite:dev-server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "electron:build"
+        "buildTarget": "app-electron:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "electron:build:development",
+          "buildTarget": "app-electron:build:development",
           "hmr": true
         }
       }
@@ -35,7 +47,7 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "wait-on http://localhost:5173 && electron .",
-        "cwd": "apps/electron"
+        "cwd": "apps/app-electron"
       }
     },
     "build": {
@@ -45,7 +57,7 @@
       ],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "apps/electron/dist"
+        "outputPath": "apps/app-electron/dist"
       },
       "configurations": {
         "development": {
@@ -63,21 +75,21 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "vite preview",
-        "cwd": "apps/electron"
+        "cwd": "apps/app-electron"
       }
     },
     "db:migrate": {
       "executor": "nx:run-commands",
       "options": {
         "command": "node scripts/migrate.js",
-        "cwd": "apps/electron"
+        "cwd": "apps/app-electron"
       }
     },
     "package": {
       "executor": "nx:run-commands",
       "options": {
         "command": "electron-builder",
-        "cwd": "apps/electron"
+        "cwd": "apps/app-electron"
       },
       "dependsOn": [
         "build"

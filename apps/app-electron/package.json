@@ -1,7 +1,7 @@
 {
-  "name": "@quorum/electron",
+  "name": "@quorum/app-electron",
   "version": "0.1.0",
-  "description": "A Slack-like app for discussions between humans and AIs",
+  "description": "Quorum Desktop - Main chat client (Electron shell + React)",
   "main": "electron/main.js",
   "private": true,
   "scripts": {
@@ -17,7 +17,8 @@
     "electron",
     "ai",
     "chat",
-    "discussion"
+    "discussion",
+    "desktop"
   ],
   "author": "",
   "license": "MIT",
@@ -50,10 +51,12 @@
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@fortawesome/react-fontawesome": "^3.1.0",
     "@heroicons/react": "^2.1.1",
-    "@quorum/api-client": "workspace:*",
-    "@quorum/components": "workspace:*",
-    "@quorum/mentions": "workspace:*",
-    "@quorum/types": "workspace:*",
+    "@quorum/auth-client": "workspace:*",
+    "@quorum/server-client": "workspace:*",
+    "@quorum/ui": "workspace:*",
+    "@quorum/utils": "workspace:*",
+    "@quorum/proto": "workspace:*",
+    "@quorum/theme": "workspace:*",
     "better-sqlite3": "^11.0.0",
     "clsx": "^2.1.0",
     "dotenv": "^16.4.7",

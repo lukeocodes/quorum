@@ -41,7 +41,7 @@ const tags = parseAllTags(content);
 ### Convert User Input to Tags
 
 ```typescript
-import { convertMentionsToTags } from '@quorum/mentions';
+import { convertMentionsToTags } from '@quorum/utils';
 
 const result = convertMentionsToTags("Hey @john #general", {
   users: [{ id: 1, username: 'john', display_name: 'John Doe' }],
@@ -54,7 +54,7 @@ const result = convertMentionsToTags("Hey @john #general", {
 ### Convert Tags to Display
 
 ```typescript
-import { convertTagsToDisplay } from '@quorum/mentions';
+import { convertTagsToDisplay } from '@quorum/utils';
 
 const display = convertTagsToDisplay("Hey <@user:1>", {
   users: [{ id: 1, username: 'john', display_name: 'John Doe' }],
@@ -65,7 +65,7 @@ const display = convertTagsToDisplay("Hey <@user:1>", {
 ### Render Tags in React
 
 ```tsx
-import { renderMessageWithTags } from '@quorum/mentions';
+import { renderMessageWithTags } from '@quorum/utils';
 
 function Message({ content, entities }) {
   return (
@@ -84,7 +84,7 @@ function Message({ content, entities }) {
 ### Extract Tag IDs
 
 ```typescript
-import { extractAllTagIds } from '@quorum/mentions';
+import { extractAllTagIds } from '@quorum/utils';
 
 const ids = extractAllTagIds("Hey <@user:1> <@ai:2> <#channel:3>");
 // ids: { users: [1], ai: [2], channels: [3], apps: [], servers: [] }
@@ -210,5 +210,5 @@ Hey <@user:1>, check this [link](https://example.com)!
 - **Types:** `libs/types/src/models.ts`
 - **Documentation:** `apps/electron/docs/mentions-and-replies.md`
 
-All apps import directly from `@quorum/mentions` - no wrapper files needed!
+All apps import directly from `@quorum/utils` - no wrapper files needed!
 

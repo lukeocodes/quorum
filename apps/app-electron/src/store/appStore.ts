@@ -127,20 +127,29 @@ interface AppState {
   setContextMenuWidth: (width: number) => void
 }
 
+// API URLs
+// api-core: auth, servers, discovery (port 3000)
+// api-server: channels, messages, ai, sse (port 3001)
+// Note: In the future, api-server URL may vary per quorum server
+const API_CORE_URL = 'http://localhost:3000'
+const API_SERVER_URL = 'http://localhost:3001'
+
 // Helper function to get API credentials for the current server
-function getApiCredentials(state: AppState): { apiUrl: string; authToken: string } | null {
+function getApiCredentials(state: AppState): { apiUrl: string; serverApiUrl: string; authToken: string } | null {
   // Prefer the current server's session info if available
-  if (state.currentServer?.sessionApiUrl && state.currentServer?.sessionAuthToken) {
+  if (state.currentServer?.sessionAuthToken) {
     return {
-      apiUrl: state.currentServer.sessionApiUrl,
+      apiUrl: state.currentServer.sessionApiUrl || API_CORE_URL,
+      serverApiUrl: API_SERVER_URL,
       authToken: state.currentServer.sessionAuthToken,
     }
   }
 
   // Fall back to active session
-  if (state.activeSession?.apiUrl && state.activeSession?.authToken) {
+  if (state.activeSession?.authToken) {
     return {
-      apiUrl: state.activeSession.apiUrl,
+      apiUrl: state.activeSession.apiUrl || API_CORE_URL,
+      serverApiUrl: API_SERVER_URL,
       authToken: state.activeSession.authToken,
     }
   }
@@ -343,35 +352,25 @@ export const useAppStore = create<AppState>((set, get) => ({
   // Room actions
   loadRooms: async (serverId) => {
     console.log('loadRooms called for serverId:', serverId)
-    const { currentServer } = get()
+    const credentials = getApiCredentials(get())
 
-    if (!currentServer) {
-      console.error('No current server when loading rooms')
+    if (!credentials) {
+      console.error('No API credentials available for loading rooms')
       return
     }
 
-    // Use the server's session auth token if available, otherwise fall back to active session
-    const apiUrl = currentServer.sessionApiUrl || get().activeSession?.apiUrl
-    const authToken = currentServer.sessionAuthToken || get().activeSession?.authToken
-
-    if (!apiUrl || !authToken) {
-      console.error('No API URL or auth token available for this server')
-      return
-    }
-
-    console.log('Using server session:', {
-      apiUrl,
-      hasToken: !!authToken,
-      fromServer: !!currentServer.sessionApiUrl,
+    console.log('Using server API:', {
+      serverApiUrl: credentials.serverApiUrl,
+      hasToken: !!credentials.authToken,
     })
 
     try {
-      const url = `${apiUrl}/servers/${serverId}/channels`
+      const url = `${credentials.serverApiUrl}/servers/${serverId}/channels`
       console.log('Fetching channels from:', url)
 
       const response = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${authToken}`,
+          'Authorization': `Bearer ${credentials.authToken}`,
           'Content-Type': 'application/json',
         },
       })
@@ -404,7 +403,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
 
     try {
-      const response = await fetch(`${credentials.apiUrl}/servers/${serverId}/channels`, {
+      const response = await fetch(`${credentials.serverApiUrl}/servers/${serverId}/channels`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${credentials.authToken}`,
@@ -476,7 +475,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
 
     try {
-      const response = await fetch(`${credentials.apiUrl}/channels/${roomId}`, {
+      const response = await fetch(`${credentials.serverApiUrl}/channels/${roomId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${credentials.authToken}`,
@@ -507,7 +506,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
 
     try {
-      const response = await fetch(`${credentials.apiUrl}/channels/${roomId}/mentionable-members`, {
+      const response = await fetch(`${credentials.serverApiUrl}/channels/${roomId}/mentionable-members`, {
         headers: {
           'Authorization': `Bearer ${credentials.authToken}`,
           'Content-Type': 'application/json',
@@ -535,7 +534,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
 
     try {
-      const response = await fetch(`${credentials.apiUrl}/channels/${roomId}/ai-members`, {
+      const response = await fetch(`${credentials.serverApiUrl}/channels/${roomId}/ai-members`, {
         headers: {
           'Authorization': `Bearer ${credentials.authToken}`,
           'Content-Type': 'application/json',
@@ -565,7 +564,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
 
     try {
-      const response = await fetch(`${credentials.apiUrl}/rooms/${currentRoom.id}/ai-members`, {
+      const response = await fetch(`${credentials.serverApiUrl}/channels/${currentRoom.id}/ai-members`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${credentials.authToken}`,
@@ -604,7 +603,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
 
     try {
-      const response = await fetch(`${credentials.apiUrl}/ai-members/${memberId}`, {
+      const response = await fetch(`${credentials.serverApiUrl}/ai-members/${memberId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${credentials.authToken}`,
@@ -641,7 +640,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
 
     try {
-      const response = await fetch(`${credentials.apiUrl}/channels/${roomId}/messages?limit=100`, {
+      const response = await fetch(`${credentials.serverApiUrl}/channels/${roomId}/messages?limit=100`, {
         headers: {
           'Authorization': `Bearer ${credentials.authToken}`,
           'Content-Type': 'application/json',
@@ -670,7 +669,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (!currentRoom || !credentials) return
 
     try {
-      const response = await fetch(`${credentials.apiUrl}/channels/${currentRoom.id}/messages`, {
+      const response = await fetch(`${credentials.serverApiUrl}/channels/${currentRoom.id}/messages`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${credentials.authToken}`,
@@ -729,7 +728,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
 
     try {
-      const response = await fetch(`${credentials.apiUrl}/channels/${roomId}/summary`, {
+      const response = await fetch(`${credentials.serverApiUrl}/channels/${roomId}/summary`, {
         headers: {
           'Authorization': `Bearer ${credentials.authToken}`,
           'Content-Type': 'application/json',
