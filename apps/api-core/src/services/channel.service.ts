@@ -4,7 +4,7 @@ import type {
   ChannelWithDetails,
   CreateChannelRequest,
   UpdateChannelRequest,
-} from '@quorum/types';
+} from '@quorum/proto';
 
 /**
  * Create a new channel in a server

@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import * as messageService from '../services/message.service';
 import { authenticate } from '../middleware/auth';
-import type { SendMessageRequest, GetMessagesRequest } from '@quorum/types';
+import type { SendMessageRequest, GetMessagesRequest } from '@quorum/proto';
 
 const router = Router();
 

@@ -6,7 +6,7 @@ import type {
   UpdateServerRequest,
   CreateInviteRequest,
   JoinServerRequest,
-} from '@quorum/types';
+} from '@quorum/proto';
 
 const router = Router();
 

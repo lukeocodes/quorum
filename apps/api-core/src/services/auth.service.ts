@@ -1,6 +1,6 @@
 import { getPool } from '../config/database';
 import { hashPassword, verifyPassword, generateSessionToken } from '../utils/encryption';
-import type { User, SignupRequest, SignupResponse, LoginRequest, LoginResponse } from '@quorum/types';
+import type { User, SignupRequest, SignupResponse, LoginRequest, LoginResponse } from '@quorum/proto';
 
 /**
  * Sign up a new user

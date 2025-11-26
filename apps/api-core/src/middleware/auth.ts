@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { getPool } from '../config/database';
-import type { User } from '@quorum/types';
+import type { User } from '@quorum/proto';
 
 // Extend Express Request type to include user
 declare global {

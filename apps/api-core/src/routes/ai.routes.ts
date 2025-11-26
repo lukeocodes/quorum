@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import * as aiService from '../services/ai.service';
 import { authenticate } from '../middleware/auth';
-import type { CreateAIMemberRequest, UpdateAIMemberRequest } from '@quorum/types';
+import type { CreateAIMemberRequest, UpdateAIMemberRequest } from '@quorum/proto';
 
 const router = Router();
 

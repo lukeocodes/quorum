@@ -4,7 +4,7 @@ import type {
   AIMember,
   CreateAIMemberRequest,
   UpdateAIMemberRequest,
-} from '@quorum/types';
+} from '@quorum/proto';
 
 /**
  * Create a new AI member in a channel

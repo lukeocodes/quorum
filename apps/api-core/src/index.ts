@@ -8,10 +8,6 @@ import { cleanupExpiredSessions } from './services/auth.service';
 // Routes
 import authRoutes from './routes/auth.routes';
 import serverRoutes from './routes/server.routes';
-import channelRoutes from './routes/channel.routes';
-import messageRoutes from './routes/message.routes';
-import aiRoutes from './routes/ai.routes';
-import sseRoutes from './routes/sse.routes';
 import discoveryRoutes from './routes/discovery.routes';
 
 // Load environment variables
@@ -24,6 +20,7 @@ const PORT = process.env.PORT || 3000;
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
   'http://localhost:5173',
   'http://localhost:4321',
+  'http://localhost:3001',
 ];
 
 app.use(
@@ -55,16 +52,14 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // Root route
 app.get('/', (req: Request, res: Response) => {
   res.json({
-    message: 'Quorum API',
+    message: 'Quorum API Core',
     version: '0.1.0',
     status: 'running',
+    description: 'Auth, identity, discovery, server directory',
     endpoints: {
       auth: '/auth',
       servers: '/servers',
       discovery: '/discovery',
-      channels: '/channels',
-      messages: '/messages',
-      ai: '/ai-members',
     },
   });
 });
@@ -81,10 +76,6 @@ app.get('/health', (req: Request, res: Response) => {
 app.use('/auth', authRoutes);
 app.use('/servers', serverRoutes);
 app.use('/discovery', discoveryRoutes);
-app.use('/', channelRoutes); // Includes /servers/:serverId/channels and /channels/:id
-app.use('/', messageRoutes); // Includes /channels/:channelId/messages and /messages/:id
-app.use('/', aiRoutes); // Includes /channels/:channelId/ai-members and /ai-members/:id
-app.use('/', sseRoutes); // SSE real-time endpoints
 
 // 404 handler
 app.use((req: Request, res: Response) => {
@@ -108,7 +99,7 @@ async function start() {
   try {
     // Setup database
     const pool = await setupDatabase();
-    
+
     // Store pool in app.locals for route access
     app.locals.pool = pool;
 
@@ -122,7 +113,7 @@ async function start() {
 
     // Start server
     app.listen(PORT, () => {
-      console.log(`🚀 Quorum API server running on http://localhost:${PORT}`);
+      console.log(`🚀 Quorum API Core running on http://localhost:${PORT}`);
       console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
     });
   } catch (error) {
@@ -148,4 +139,3 @@ process.on('SIGINT', async () => {
 start();
 
 export default app;
-

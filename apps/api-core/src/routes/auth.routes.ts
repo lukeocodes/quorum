@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import * as authService from '../services/auth.service';
 import { authenticate } from '../middleware/auth';
-import type { SignupRequest, LoginRequest } from '@quorum/types';
+import type { SignupRequest, LoginRequest } from '@quorum/proto';
 
 const router = Router();
 

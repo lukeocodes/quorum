@@ -1,18 +1,29 @@
 {
-  "name": "api",
+  "name": "api-core",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/api/src",
+  "sourceRoot": "apps/api-core/src",
   "projectType": "application",
   "tags": [
+    "npm:private",
+    "npm:express",
+    "npm:api",
+    "npm:typescript",
     "type:app",
     "platform:node",
     "scope:backend"
   ],
   "targets": {
+    "migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm --filter @quorum/api-core migrate",
+        "cwd": "{workspaceRoot}"
+      }
+    },
     "dev": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "pnpm --filter @quorum/api dev",
+        "command": "pnpm --filter @quorum/api-core dev",
         "cwd": "{workspaceRoot}"
       },
       "dependsOn": [
@@ -22,10 +33,10 @@
     "build": {
       "executor": "nx:run-commands",
       "outputs": [
-        "{workspaceRoot}/apps/api/dist"
+        "{workspaceRoot}/apps/api-core/dist"
       ],
       "options": {
-        "command": "pnpm --filter @quorum/api build",
+        "command": "pnpm --filter @quorum/api-core build",
         "cwd": "{workspaceRoot}"
       },
       "dependsOn": [
@@ -35,7 +46,7 @@
     "start": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "pnpm --filter @quorum/api start",
+        "command": "pnpm --filter @quorum/api-core start",
         "cwd": "{workspaceRoot}"
       },
       "dependsOn": [
@@ -45,7 +56,7 @@
     "lint": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "pnpm --filter @quorum/api lint",
+        "command": "pnpm --filter @quorum/api-core lint",
         "cwd": "{workspaceRoot}"
       }
     }

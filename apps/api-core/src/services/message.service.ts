@@ -1,5 +1,5 @@
 import { getPool } from '../config/database';
-import { extractMentionIds } from '@quorum/mentions';
+import { extractMentionIds } from '@quorum/utils';
 import { sseManager } from './sse.service';
 import type {
   Message,
@@ -9,7 +9,7 @@ import type {
   GetMessagesRequest,
   PaginatedResponse,
   SSEEventType,
-} from '@quorum/types';
+} from '@quorum/proto';
 
 /**
  * Send a message to a channel

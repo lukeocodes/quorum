@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import * as channelService from '../services/channel.service';
 import { authenticate } from '../middleware/auth';
-import type { CreateChannelRequest, UpdateChannelRequest, ShareChannelRequest } from '@quorum/types';
+import type { CreateChannelRequest, UpdateChannelRequest, ShareChannelRequest } from '@quorum/proto';
 
 const router = Router();
 

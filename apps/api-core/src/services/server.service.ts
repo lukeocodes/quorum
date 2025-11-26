@@ -9,7 +9,7 @@ import type {
   UpdateServerRequest,
   CreateInviteRequest,
   ServerRole,
-} from '@quorum/types';
+} from '@quorum/proto';
 
 /**
  * Create a new server

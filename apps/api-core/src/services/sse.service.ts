@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import type { SSEEvent, SSEEventType } from '@quorum/types';
+import type { SSEEvent, SSEEventType } from '@quorum/proto';
 
 interface SSEClient {
   id: string;
