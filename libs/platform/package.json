@@ -1,0 +1,38 @@
+{
+  "name": "@quorum/platform",
+  "version": "0.1.0",
+  "description": "Web vs Electron wrappers for platform-specific features",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch"
+  },
+  "keywords": [
+    "platform",
+    "electron",
+    "web",
+    "notifications"
+  ],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.45",
+    "react": "^18.3.1",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  }
+}
+
