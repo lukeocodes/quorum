@@ -31,14 +31,22 @@ Shared Prettier configuration with support for:
 
 [View documentation](./prettier-config/README.md)
 
-### @quorum/tailwind-config
+### @quorum/theme
 
-Shared Tailwind CSS configuration including:
+Shared design system for Quorum including:
+- Design tokens (colors, spacing, typography)
+- Avatar utilities
+- Tailwind CSS preset (`@quorum/theme/tailwind`)
 - Extended color palette (primary, secondary, success, warning, danger)
 - Custom typography (Inter, JetBrains Mono)
-- Extended spacing and border radius utilities
 
-[View documentation](./tailwind-config/README.md)
+### @quorum/utils
+
+Common utility functions including:
+- Formatting utilities (dates, numbers, text)
+- Validation utilities
+- Async helpers (debounce, throttle, retry)
+- Mentions/tags system (merged from @quorum/mentions)
 
 ### @quorum/tsconfig
 
