@@ -27,9 +27,9 @@ catalog:
   zustand: ^5.0.2
 
   # Astro ecosystem
-  astro: ^4.16.18
+  astro: ^5.15.8
   "@astrojs/react": ^3.6.2
-  "@astrojs/tailwind": ^5.1.4
+  "@astrojs/tailwind": ^5.1.5
   "@astrojs/check": ^0.9.4
 
   # Styling
@@ -39,7 +39,7 @@ catalog:
   typescript: ^5.3.3
   tsx: ^4.7.0
   tsup: ^8.0.1
-  "@types/node": ^20.10.5
+  "@types/node": ^24.10.1
 
 overrides:
   astro@<5.14.3: ">=5.14.3"
