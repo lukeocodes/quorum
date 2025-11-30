@@ -11,6 +11,9 @@ dist/
 dist-electron/
 build/
 
+# Astro
+.astro/
+
 # Misc
 .DS_Store
 .env
