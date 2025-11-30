@@ -1,14 +1,18 @@
 import { getPool } from '../config/database';
+import type { User } from '@quorum/proto';
 
 export interface UserProfile {
   id: number;
   email: string;
   username: string;
   display_name: string | null;
-  avatar_url: string | null;
-  bio: string | null;
-  created_at: Date;
-  updated_at: Date;
+  avatar_color: string;
+  full_name: string | null;
+  title: string | null;
+  pronouns: string | null;
+  timezone: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 /**
@@ -17,7 +21,12 @@ export interface UserProfile {
 export async function getUserProfile(userId: number): Promise<UserProfile | null> {
   const pool = getPool();
   const result = await pool.query<UserProfile>(
-    'SELECT id, email, username, display_name, avatar_url, bio, created_at, updated_at FROM users WHERE id = $1',
+    `SELECT 
+      id, email, username, display_name, avatar_color, 
+      full_name, title, pronouns, timezone,
+      created_at, updated_at 
+    FROM users 
+    WHERE id = $1`,
     [userId]
   );
 
@@ -25,7 +34,13 @@ export async function getUserProfile(userId: number): Promise<UserProfile | null
     return null;
   }
 
-  return result.rows[0];
+  // Convert Date objects to ISO strings
+  const row = result.rows[0];
+  return {
+    ...row,
+    created_at: row.created_at instanceof Date ? row.created_at.toISOString() : row.created_at,
+    updated_at: row.updated_at instanceof Date ? row.updated_at.toISOString() : row.updated_at,
+  };
 }
 
 /**
@@ -34,9 +49,11 @@ export async function getUserProfile(userId: number): Promise<UserProfile | null
 export async function updateUserProfile(
   userId: number,
   updates: {
-    display_name?: string;
-    avatar_url?: string;
-    bio?: string;
+    display_name?: string | null;
+    full_name?: string | null;
+    title?: string | null;
+    pronouns?: string | null;
+    timezone?: string | null;
   }
 ): Promise<UserProfile | null> {
   const pool = getPool();
@@ -50,14 +67,24 @@ export async function updateUserProfile(
     values.push(updates.display_name);
   }
 
-  if (updates.avatar_url !== undefined) {
-    fields.push(`avatar_url = $${paramCount++}`);
-    values.push(updates.avatar_url);
+  if (updates.full_name !== undefined) {
+    fields.push(`full_name = $${paramCount++}`);
+    values.push(updates.full_name);
   }
 
-  if (updates.bio !== undefined) {
-    fields.push(`bio = $${paramCount++}`);
-    values.push(updates.bio);
+  if (updates.title !== undefined) {
+    fields.push(`title = $${paramCount++}`);
+    values.push(updates.title);
+  }
+
+  if (updates.pronouns !== undefined) {
+    fields.push(`pronouns = $${paramCount++}`);
+    values.push(updates.pronouns);
+  }
+
+  if (updates.timezone !== undefined) {
+    fields.push(`timezone = $${paramCount++}`);
+    values.push(updates.timezone);
   }
 
   if (fields.length === 0) {
@@ -68,7 +95,12 @@ export async function updateUserProfile(
   values.push(userId);
 
   const result = await pool.query<UserProfile>(
-    `UPDATE users SET ${fields.join(', ')} WHERE id = $${paramCount} RETURNING id, email, username, display_name, avatar_url, bio, created_at, updated_at`,
+    `UPDATE users 
+     SET ${fields.join(', ')} 
+     WHERE id = $${paramCount} 
+     RETURNING id, email, username, display_name, avatar_color, 
+               full_name, title, pronouns, timezone,
+               created_at, updated_at`,
     values
   );
 
@@ -76,6 +108,12 @@ export async function updateUserProfile(
     return null;
   }
 
-  return result.rows[0];
+  // Convert Date objects to ISO strings
+  const row = result.rows[0];
+  return {
+    ...row,
+    created_at: row.created_at instanceof Date ? row.created_at.toISOString() : row.created_at,
+    updated_at: row.updated_at instanceof Date ? row.updated_at.toISOString() : row.updated_at,
+  };
 }
 

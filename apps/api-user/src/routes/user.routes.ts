@@ -41,12 +41,14 @@ router.get('/me', authenticateToken, async (req: AuthRequest, res: Response) => 
 router.put('/me', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
-    const { display_name, avatar_url, bio } = req.body;
+    const { display_name, full_name, title, pronouns, timezone } = req.body;
 
     const profile = await userService.updateUserProfile(userId, {
       display_name,
-      avatar_url,
-      bio,
+      full_name,
+      title,
+      pronouns,
+      timezone,
     });
 
     if (!profile) {
