@@ -1,0 +1,38 @@
+{
+  "name": "@quorum/api-client-user",
+  "version": "0.1.0",
+  "description": "Client SDK for Quorum API User (user profiles, preferences, app customization)",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "private": true,
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch"
+  },
+  "keywords": [
+    "quorum",
+    "api",
+    "client",
+    "sdk",
+    "user",
+    "preferences"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@quorum/proto": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "tsup": "^8.0.1"
+  }
+}
+
