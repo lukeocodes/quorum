@@ -9,6 +9,7 @@ import channelRoutes from './routes/channel.routes';
 import messageRoutes from './routes/message.routes';
 import aiRoutes from './routes/ai.routes';
 import sseRoutes from './routes/sse.routes';
+import profileRoutes from './routes/profile.routes';
 
 // Load environment variables
 dotenv.config();
@@ -57,10 +58,11 @@ app.get('/', (req: Request, res: Response) => {
     version: '0.1.0',
     status: 'running',
     description: 'Server data: messages, channels, media, events',
-    endpoints: {
+      endpoints: {
       channels: '/channels, /servers/:serverId/channels',
       messages: '/channels/:channelId/messages, /messages/:id',
       aiMembers: '/channels/:channelId/ai-members, /ai-members/:id',
+      profiles: '/servers/:serverId/profiles/me, /servers/:serverId/profiles/:userId',
       sse: '/sse/channels/:channelId, /sse/subscribe',
     },
   });
@@ -78,6 +80,7 @@ app.get('/health', (req: Request, res: Response) => {
 app.use('/', channelRoutes); // Includes /servers/:serverId/channels and /channels/:id
 app.use('/', messageRoutes); // Includes /channels/:channelId/messages and /messages/:id
 app.use('/', aiRoutes); // Includes /channels/:channelId/ai-members and /ai-members/:id
+app.use('/', profileRoutes); // Includes /servers/:serverId/profiles/me and /servers/:serverId/profiles/:userId
 app.use('/', sseRoutes); // SSE real-time endpoints
 
 // 404 handler
