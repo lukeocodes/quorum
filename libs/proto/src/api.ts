@@ -126,29 +126,19 @@ export interface JoinServerResponse {
 export interface DiscoveryServer extends ServerWithMembers {
   role: string;
   channelCount: number;
-  isAddedToDesktop?: boolean;
-  isAddedToWeb?: boolean;
+  isAdded: boolean;
 }
 
 export interface GetDiscoveryServersResponse {
   servers: DiscoveryServer[];
 }
 
-export interface AddServerToClientRequest {
-  client_type: 'desktop' | 'web';
-}
-
-export interface AddServerToClientResponse {
+export interface AddServerResponse {
   success: boolean;
   server_id: number;
-  client_type: 'desktop' | 'web';
 }
 
-export interface RemoveServerFromClientRequest {
-  client_type: 'desktop' | 'web';
-}
-
-export interface RemoveServerFromClientResponse {
+export interface RemoveServerResponse {
   success: boolean;
 }
 
@@ -280,28 +270,28 @@ export enum SSEEventType {
   // Messages
   Message = 'message',
   MessageDeleted = 'message_deleted',
-  
+
   // Typing indicators
   TypingStart = 'typing_start',
   TypingStop = 'typing_stop',
-  
+
   // Members
   MemberJoin = 'member_join',
   MemberLeave = 'member_leave',
-  
+
   // AI responses
   AIResponseStart = 'ai_response_start',
   AIResponseChunk = 'ai_response_chunk',
   AIResponseEnd = 'ai_response_end',
   AIResponseError = 'ai_response_error',
-  
+
   // Channel updates
   ChannelUpdated = 'channel_updated',
   ChannelDeleted = 'channel_deleted',
-  
+
   // Server updates
   ServerUpdated = 'server_updated',
-  
+
   // Connection
   Connected = 'connected',
   Ping = 'ping',
