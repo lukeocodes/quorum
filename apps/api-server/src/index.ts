@@ -14,13 +14,14 @@ import sseRoutes from './routes/sse.routes';
 dotenv.config();
 
 const app = express();
+const HOST = process.env.HOST || 'localhost';
 const PORT = process.env.PORT || 3001;
 
 // CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
-  'http://localhost:5173',
-  'http://localhost:4321',
-  'http://localhost:3000',
+  'http://localhost:4321',  // console
+  'http://localhost:4322',  // app-web
+  'http://localhost:5173',  // app-electron
 ];
 
 app.use(
@@ -106,8 +107,8 @@ async function start() {
     app.locals.pool = pool;
 
     // Start server
-    app.listen(PORT, () => {
-      console.log(`🚀 Quorum API Server running on http://localhost:${PORT}`);
+    app.listen(Number(PORT), HOST, () => {
+      console.log(`🚀 Quorum API Server running on http://${HOST}:${PORT}`);
       console.log(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
     });
   } catch (error) {
