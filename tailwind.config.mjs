@@ -1,7 +1,7 @@
-const baseConfig = require('@quorum/theme/tailwind');
+import baseConfig from '@quorum/theme/tailwind';
 
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   ...baseConfig,
   // This root config is primarily for editor IntelliSense
   // Individual apps should have their own configs with proper content paths

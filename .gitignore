@@ -48,3 +48,6 @@ out/
 
 # Cursor
 .cursor/mcp.json
+
+# Agents
+AGENTS.md

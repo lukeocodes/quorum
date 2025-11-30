@@ -7,6 +7,11 @@
         "^build"
       ]
     },
+    "dev": {
+      "dependsOn": [
+        "^build"
+      ]
+    },
     "lint": {
       "cache": true
     },

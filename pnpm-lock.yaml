@@ -122,6 +122,52 @@ importers:
         specifier: ^5.3.3
         version: 5.9.3
 
+  apps/api-user:
+    dependencies:
+      '@quorum/proto':
+        specifier: workspace:*
+        version: link:../../libs/proto
+      '@quorum/utils':
+        specifier: workspace:*
+        version: link:../../libs/utils
+      cookie-parser:
+        specifier: ^1.4.6
+        version: 1.4.7
+      cors:
+        specifier: ^2.8.5
+        version: 2.8.5
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.6.1
+      express:
+        specifier: ^4.18.2
+        version: 4.21.2
+      pg:
+        specifier: ^8.11.3
+        version: 8.16.3
+    devDependencies:
+      '@types/cookie-parser':
+        specifier: ^1.4.6
+        version: 1.4.10(@types/express@4.17.25)
+      '@types/cors':
+        specifier: ^2.8.17
+        version: 2.8.19
+      '@types/express':
+        specifier: ^4.17.21
+        version: 4.17.25
+      '@types/node':
+        specifier: ^20.10.5
+        version: 20.19.25
+      '@types/pg':
+        specifier: ^8.10.9
+        version: 8.15.6
+      tsx:
+        specifier: ^4.7.0
+        version: 4.20.6
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+
   apps/app-electron:
     dependencies:
       '@anthropic-ai/sdk':
@@ -160,21 +206,27 @@ importers:
       '@heroicons/react':
         specifier: ^2.1.1
         version: 2.2.0(react@18.3.1)
-      '@quorum/auth-client':
+      '@quorum/api-client-auth':
         specifier: workspace:*
-        version: link:../../libs/auth-client
+        version: link:../../libs/api-client-auth
+      '@quorum/api-client-server':
+        specifier: workspace:*
+        version: link:../../libs/api-client-server
+      '@quorum/app':
+        specifier: workspace:*
+        version: link:../../libs/app
+      '@quorum/app-state':
+        specifier: workspace:*
+        version: link:../../libs/app-state
+      '@quorum/platform':
+        specifier: workspace:*
+        version: link:../../libs/platform
       '@quorum/proto':
         specifier: workspace:*
         version: link:../../libs/proto
-      '@quorum/server-client':
-        specifier: workspace:*
-        version: link:../../libs/server-client
       '@quorum/theme':
         specifier: workspace:*
         version: link:../../libs/theme
-      '@quorum/ui':
-        specifier: workspace:*
-        version: link:../../libs/ui
       '@quorum/utils':
         specifier: workspace:*
         version: link:../../libs/utils
@@ -257,18 +309,36 @@ importers:
       '@astrojs/tailwind':
         specifier: ^5.1.4
         version: 5.1.5(astro@4.16.19(@types/node@20.19.25)(rollup@4.53.3)(typescript@5.9.3))(tailwindcss@3.4.18(tsx@4.20.6)(yaml@2.8.1))
-      '@quorum/auth-client':
+      '@fortawesome/fontawesome-svg-core':
+        specifier: ^7.1.0
+        version: 7.1.0
+      '@fortawesome/free-solid-svg-icons':
+        specifier: ^7.1.0
+        version: 7.1.0
+      '@fortawesome/react-fontawesome':
+        specifier: ^3.1.0
+        version: 3.1.0(@fortawesome/fontawesome-svg-core@7.1.0)(react@18.3.1)
+      '@quorum/api-client-auth':
         specifier: workspace:*
-        version: link:../../libs/auth-client
+        version: link:../../libs/api-client-auth
+      '@quorum/api-client-user':
+        specifier: workspace:*
+        version: link:../../libs/api-client-user
+      '@quorum/app':
+        specifier: workspace:*
+        version: link:../../libs/app
+      '@quorum/app-state':
+        specifier: workspace:*
+        version: link:../../libs/app-state
+      '@quorum/platform':
+        specifier: workspace:*
+        version: link:../../libs/platform
       '@quorum/proto':
         specifier: workspace:*
         version: link:../../libs/proto
       '@quorum/theme':
         specifier: workspace:*
         version: link:../../libs/theme
-      '@quorum/ui':
-        specifier: workspace:*
-        version: link:../../libs/ui
       '@quorum/utils':
         specifier: workspace:*
         version: link:../../libs/utils
@@ -309,12 +379,12 @@ importers:
       '@astrojs/tailwind':
         specifier: ^5.1.4
         version: 5.1.5(astro@4.16.19(@types/node@20.19.25)(rollup@4.53.3)(typescript@5.9.3))(tailwindcss@3.4.18(tsx@4.20.6)(yaml@2.8.1))
+      '@quorum/app':
+        specifier: workspace:*
+        version: link:../../libs/app
       '@quorum/theme':
         specifier: workspace:*
         version: link:../../libs/theme
-      '@quorum/ui':
-        specifier: workspace:*
-        version: link:../../libs/ui
       astro:
         specifier: ^4.16.18
         version: 4.16.19(@types/node@20.19.25)(rollup@4.53.3)(typescript@5.9.3)
@@ -335,6 +405,103 @@ importers:
         specifier: ^5.3.3
         version: 5.9.3
 
+  libs/api-client-auth:
+    dependencies:
+      '@quorum/proto':
+        specifier: workspace:*
+        version: link:../proto
+    devDependencies:
+      tsup:
+        specifier: ^8.0.1
+        version: 8.5.1(jiti@1.21.7)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+
+  libs/api-client-server:
+    dependencies:
+      '@quorum/proto':
+        specifier: workspace:*
+        version: link:../proto
+    devDependencies:
+      tsup:
+        specifier: ^8.0.1
+        version: 8.5.1(jiti@1.21.7)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+
+  libs/api-client-user:
+    dependencies:
+      '@quorum/proto':
+        specifier: workspace:*
+        version: link:../proto
+    devDependencies:
+      tsup:
+        specifier: ^8.0.1
+        version: 8.5.1(jiti@1.21.7)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+
+  libs/app:
+    dependencies:
+      '@dnd-kit/core':
+        specifier: ^6.1.0
+        version: 6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@dnd-kit/sortable':
+        specifier: ^8.0.0
+        version: 8.0.0(@dnd-kit/core@6.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+      '@dnd-kit/utilities':
+        specifier: ^3.2.2
+        version: 3.2.2(react@18.3.1)
+      '@quorum/app-state':
+        specifier: workspace:*
+        version: link:../app-state
+      '@quorum/platform':
+        specifier: workspace:*
+        version: link:../platform
+      '@quorum/proto':
+        specifier: workspace:*
+        version: link:../proto
+      '@quorum/utils':
+        specifier: workspace:*
+        version: link:../utils
+      clsx:
+        specifier: ^2.1.0
+        version: 2.1.1
+      zustand:
+        specifier: ^5.0.2
+        version: 5.0.8(@types/react@18.3.27)(react@18.3.1)
+    devDependencies:
+      '@fortawesome/fontawesome-svg-core':
+        specifier: ^6.5.1
+        version: 6.7.2
+      '@fortawesome/free-solid-svg-icons':
+        specifier: ^6.5.1
+        version: 6.7.2
+      '@fortawesome/react-fontawesome':
+        specifier: ^0.2.0
+        version: 0.2.6(@fortawesome/fontawesome-svg-core@6.7.2)(react@18.3.1)
+      '@types/react':
+        specifier: ^18.2.45
+        version: 18.3.27
+      '@types/react-dom':
+        specifier: ^18.2.18
+        version: 18.3.7(@types/react@18.3.27)
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+      tsup:
+        specifier: ^8.0.1
+        version: 8.5.1(jiti@1.21.7)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+
   libs/app-state:
     dependencies:
       zustand:
@@ -347,19 +514,6 @@ importers:
       react:
         specifier: ^18.3.1
         version: 18.3.1
-      tsup:
-        specifier: ^8.0.1
-        version: 8.5.1(jiti@1.21.7)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
-      typescript:
-        specifier: ^5.3.3
-        version: 5.9.3
-
-  libs/auth-client:
-    dependencies:
-      '@quorum/proto':
-        specifier: workspace:*
-        version: link:../proto
-    devDependencies:
       tsup:
         specifier: ^8.0.1
         version: 8.5.1(jiti@1.21.7)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
@@ -446,19 +600,6 @@ importers:
         specifier: ^5.3.3
         version: 5.9.3
 
-  libs/server-client:
-    dependencies:
-      '@quorum/proto':
-        specifier: workspace:*
-        version: link:../proto
-    devDependencies:
-      tsup:
-        specifier: ^8.0.1
-        version: 8.5.1(jiti@1.21.7)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
-      typescript:
-        specifier: ^5.3.3
-        version: 5.9.3
-
   libs/storage:
     devDependencies:
       tsup:
@@ -485,31 +626,6 @@ importers:
     dependencies:
       typescript:
         specifier: ^5.0.0
-        version: 5.9.3
-
-  libs/ui:
-    dependencies:
-      clsx:
-        specifier: ^2.1.0
-        version: 2.1.1
-    devDependencies:
-      '@types/react':
-        specifier: ^18.2.45
-        version: 18.3.27
-      '@types/react-dom':
-        specifier: ^18.2.18
-        version: 18.3.7(@types/react@18.3.27)
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
-      tsup:
-        specifier: ^8.0.1
-        version: 8.5.1(jiti@1.21.7)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
-      typescript:
-        specifier: ^5.3.3
         version: 5.9.3
 
   libs/utils:
@@ -1736,8 +1852,16 @@ packages:
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
+  '@fortawesome/fontawesome-common-types@6.7.2':
+    resolution: {integrity: sha512-Zs+YeHUC5fkt7Mg1l6XTniei3k4bwG/yo3iFUtZWd/pMx9g3fdvkSK9E0FOC+++phXOka78uJcYb8JaFkW52Xg==}
+    engines: {node: '>=6'}
+
   '@fortawesome/fontawesome-common-types@7.1.0':
     resolution: {integrity: sha512-l/BQM7fYntsCI//du+6sEnHOP6a74UixFyOYUyz2DLMXKx+6DEhfR3F2NYGE45XH1JJuIamacb4IZs9S0ZOWLA==}
+    engines: {node: '>=6'}
+
+  '@fortawesome/fontawesome-svg-core@6.7.2':
+    resolution: {integrity: sha512-yxtOBWDrdi5DD5o1pmVdq3WMCvnobT0LU6R8RyyVXPvFRd2o79/0NCuQoCjNTeZz9EzA9xS3JxNWfv54RIHFEA==}
     engines: {node: '>=6'}
 
   '@fortawesome/fontawesome-svg-core@7.1.0':
@@ -1752,9 +1876,19 @@ packages:
     resolution: {integrity: sha512-0e2fdEyB4AR+e6kU4yxwA/MonnYcw/CsMEP9lH82ORFi9svA6/RhDyhxIv5mlJaldmaHLLYVTb+3iEr+PDSZuQ==}
     engines: {node: '>=6'}
 
+  '@fortawesome/free-solid-svg-icons@6.7.2':
+    resolution: {integrity: sha512-GsBrnOzU8uj0LECDfD5zomZJIjrPhIlWU82AHwa2s40FKH+kcxQaBvBo3Z4TxyZHIyX8XTDxsyA33/Vx9eFuQA==}
+    engines: {node: '>=6'}
+
   '@fortawesome/free-solid-svg-icons@7.1.0':
     resolution: {integrity: sha512-Udu3K7SzAo9N013qt7qmm22/wo2hADdheXtBfxFTecp+ogsc0caQNRKEb7pkvvagUGOpG9wJC1ViH6WXs8oXIA==}
     engines: {node: '>=6'}
+
+  '@fortawesome/react-fontawesome@0.2.6':
+    resolution: {integrity: sha512-mtBFIi1UsYQo7rYonYFkjgYKGoL8T+fEH6NGUpvuqtY3ytMsAoDaPo5rk25KuMtKDipY4bGYM/CkmCHA1N3FUg==}
+    peerDependencies:
+      '@fortawesome/fontawesome-svg-core': ~1 || ~6 || ~7
+      react: ^16.3 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   '@fortawesome/react-fontawesome@3.1.0':
     resolution: {integrity: sha512-5OUQH9aDH/xHJwnpD4J7oEdGvFGJgYnGe0UebaPIdMW9UxYC/f5jv2VjVEgnikdJN0HL8yQxp9Nq+7gqGZpIIA==}
@@ -7785,7 +7919,13 @@ snapshots:
       '@eslint/core': 0.17.0
       levn: 0.4.1
 
+  '@fortawesome/fontawesome-common-types@6.7.2': {}
+
   '@fortawesome/fontawesome-common-types@7.1.0': {}
+
+  '@fortawesome/fontawesome-svg-core@6.7.2':
+    dependencies:
+      '@fortawesome/fontawesome-common-types': 6.7.2
 
   '@fortawesome/fontawesome-svg-core@7.1.0':
     dependencies:
@@ -7799,9 +7939,19 @@ snapshots:
     dependencies:
       '@fortawesome/fontawesome-common-types': 7.1.0
 
+  '@fortawesome/free-solid-svg-icons@6.7.2':
+    dependencies:
+      '@fortawesome/fontawesome-common-types': 6.7.2
+
   '@fortawesome/free-solid-svg-icons@7.1.0':
     dependencies:
       '@fortawesome/fontawesome-common-types': 7.1.0
+
+  '@fortawesome/react-fontawesome@0.2.6(@fortawesome/fontawesome-svg-core@6.7.2)(react@18.3.1)':
+    dependencies:
+      '@fortawesome/fontawesome-svg-core': 6.7.2
+      prop-types: 15.8.1
+      react: 18.3.1
 
   '@fortawesome/react-fontawesome@3.1.0(@fortawesome/fontawesome-svg-core@7.1.0)(react@18.3.1)':
     dependencies:
