@@ -12,7 +12,13 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
-// Load environment variables
+// Load environment variables from root .env file
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+// Go up from migrations/ to api-core/ to root
+const rootEnvPath = join(__dirname, '../../..', '.env');
+dotenv.config({ path: rootEnvPath });
+// Also try local .env as fallback
 dotenv.config();
 
 const DB_CONFIG = {
