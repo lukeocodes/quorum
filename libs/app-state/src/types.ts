@@ -20,9 +20,11 @@ export interface Server {
   updated_at: string;
   role?: string;
   // Session info for multi-account support
+  sessionId?: number;
   sessionApiUrl?: string;
   sessionAuthToken?: string;
   sessionUserId?: number;
+  sessionUsername?: string;
 }
 
 export interface Channel {

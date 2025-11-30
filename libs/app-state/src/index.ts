@@ -35,3 +35,9 @@ export type { AIMemberStore } from './stores/aiMemberStore';
 
 export { createActivityStore, useActivityStore } from './stores/activityStore';
 export type { ActivityStore } from './stores/activityStore';
+
+export { createSessionStore } from './stores/sessionStore';
+export type { SessionStore, UserSession } from './stores/sessionStore';
+
+export { createUIStore, useUIStore } from './stores/uiStore';
+export type { UIStore } from './stores/uiStore';
