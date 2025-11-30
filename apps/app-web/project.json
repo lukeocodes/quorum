@@ -17,11 +17,42 @@
     "dev": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "pnpm --filter @quorum/app-web dev",
-        "cwd": "{workspaceRoot}"
+        "commands": [
+          {
+            "command": "pnpm --filter @quorum/api-core dev",
+            "forwardAllArgs": false
+          },
+          {
+            "command": "pnpm --filter @quorum/api-server dev",
+            "forwardAllArgs": false
+          },
+          {
+            "command": "pnpm --filter @quorum/api-user dev",
+            "forwardAllArgs": false
+          },
+          {
+            "command": "pnpm --filter @quorum/app dev",
+            "forwardAllArgs": false
+          },
+          {
+            "command": "pnpm --filter @quorum/app-web dev",
+            "forwardAllArgs": false
+          },
+          {
+            "command": "pnpm --filter @quorum/console dev",
+            "forwardAllArgs": false
+          }
+        ],
+        "parallel": true
       },
       "dependsOn": [
-        "^build"
+        "proto:build",
+        "platform:build",
+        "app-state:build",
+        "api-client-auth:build",
+        "api-client-user:build",
+        "theme:build",
+        "utils:build"
       ]
     },
     "build": {
