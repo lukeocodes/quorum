@@ -13,13 +13,6 @@
     "platform:electron"
   ],
   "targets": {
-    "postinstall": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "electron-rebuild -f -w better-sqlite3",
-        "cwd": "apps/app-electron"
-      }
-    },
     "dev": {
       "executor": "nx:run-commands",
       "options": {

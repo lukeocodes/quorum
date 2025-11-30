@@ -2,10 +2,11 @@ packages:
   - apps/*
   - libs/*
 
-onlyBuiltDependencies:
-  - better-sqlite3
-  - electron
-  - esbuild
-  - lzma-native
-  - nx
-  - sharp
+overrides:
+  astro@<5.14.3: ">=5.14.3"
+  astro@<5.15.8: ">=5.15.8"
+  astro@<5.15.9: ">=5.15.9"
+  astro@<=5.15.6: ">=5.15.8"
+  astro@>=2.16.0 <5.15.5: ">=5.15.5"
+  electron@<35.7.5: ">=35.7.5"
+  esbuild@<=0.24.2: ">=0.25.0"
