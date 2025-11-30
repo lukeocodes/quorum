@@ -1,0 +1,20 @@
+---
+import Layout from '../layouts/Layout.astro';
+import WebShell from '../components/WebShell';
+---
+
+<Layout title="Quorum">
+  <WebShell client:load>
+    <!-- Main app content will go here when session exists -->
+    <div class="min-h-screen flex items-center justify-center bg-off-white">
+      <div class="text-center">
+        <h1 class="text-2xl font-semibold text-text-primary mb-2">
+          Quorum Web
+        </h1>
+        <p class="text-text-secondary">
+          Select a server from the sidebar to get started.
+        </p>
+      </div>
+    </div>
+  </WebShell>
+</Layout>

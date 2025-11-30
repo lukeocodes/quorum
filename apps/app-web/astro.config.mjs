@@ -6,8 +6,13 @@ import tailwind from '@astrojs/tailwind';
 export default defineConfig({
   integrations: [
     react(),
-    tailwind()
+    tailwind({
+      configFile: './tailwind.config.mjs',
+    })
   ],
-  output: 'static'
+  output: 'static',
+  server: {
+    host: process.env.HOST || 'localhost',
+    port: parseInt(process.env.PORT || '4322', 10),
+  },
 });
-

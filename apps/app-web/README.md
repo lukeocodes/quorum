@@ -25,8 +25,9 @@ npm run dev:web
 
 ## Dependencies
 
-- `@quorum/ui` - Shared React components
+- `@quorum/app` - Shared application core (components, store, adapters)
 - `@quorum/proto` - Shared types and schemas
-- `@quorum/auth-client` - API Core SDK
+- `@quorum/api-client-auth` - API Core SDK (auth, identity, discovery)
+- `@quorum/api-client-user` - API User SDK (profiles, preferences, customization)
 - `@quorum/utils` - Common utilities including mentions/tags
 
