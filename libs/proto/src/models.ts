@@ -6,8 +6,12 @@ export interface User {
   id: number;
   username: string;
   email: string;
-  display_name: string;
+  display_name: string | null;
   avatar_color: string;
+  full_name: string | null;
+  title: string | null;
+  pronouns: string | null;
+  timezone: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -194,5 +198,42 @@ export interface ChannelWithDetails extends Channel {
   server?: Server;
   ai_members?: AIMember[];
   summary?: ChannelSummary;
+}
+
+export interface ServerProfile {
+  id: number;
+  user_id: number;
+  server_id: number;
+  full_name: string | null;
+  display_name: string | null;
+  title: string | null;
+  pronouns: string | null;
+  timezone: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Merged profile view - combines user profile with server profile overrides
+ */
+export interface MergedProfile {
+  user_id: number;
+  server_id: number;
+  username: string;
+  email: string;
+  display_name: string | null;
+  avatar_color: string;
+  full_name: string | null;
+  title: string | null;
+  pronouns: string | null;
+  timezone: string | null;
+  // Indicates which fields are overridden by server profile
+  overrides: {
+    display_name: boolean;
+    full_name: boolean;
+    title: boolean;
+    pronouns: boolean;
+    timezone: boolean;
+  };
 }
 
