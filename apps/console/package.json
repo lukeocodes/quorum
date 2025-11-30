@@ -25,7 +25,7 @@
     "astro": "^4.16.18",
     "@astrojs/react": "^3.6.2",
     "@astrojs/tailwind": "^5.1.4",
-    "@quorum/ui": "workspace:*",
+    "@quorum/app": "workspace:*",
     "@quorum/theme": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
