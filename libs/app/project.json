@@ -1,0 +1,33 @@
+{
+  "name": "app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/app/src",
+  "projectType": "library",
+  "tags": [
+    "type:library",
+    "scope:shared"
+  ],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [
+        "{projectRoot}/dist"
+      ],
+      "options": {
+        "command": "pnpm run build",
+        "cwd": "libs/app"
+      },
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm run dev",
+        "cwd": "libs/app"
+      }
+    }
+  }
+}
+
