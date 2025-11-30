@@ -1,5 +1,5 @@
 /**
- * @quorum/server-client
+ * @quorum/api-client-server
  * 
  * Client SDK for Quorum API Server (channels, messages, ai-members, real-time)
  */

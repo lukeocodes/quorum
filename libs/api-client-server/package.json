@@ -1,5 +1,5 @@
 {
-  "name": "@quorum/server-client",
+  "name": "@quorum/api-client-server",
   "version": "0.1.0",
   "description": "Client SDK for Quorum API Server (messages, channels, media)",
   "type": "module",
