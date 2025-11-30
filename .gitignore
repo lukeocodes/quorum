@@ -54,3 +54,7 @@ out/
 
 # Agents
 AGENTS.md
+
+# Wrong Lockfiles
+package-lock.json
+yarn.lock

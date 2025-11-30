@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "A Slack-like app for discussions between humans and AIs - NX Monorepo",
   "private": true,
+  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a",
   "scripts": {
     "dev": "nx run-many --target=dev --projects=api-core,api-server,api-user,app-electron,app-web,console --parallel=6",
     "dev:api-core": "nx run api-core:dev",
