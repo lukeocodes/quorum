@@ -1,6 +1,6 @@
-# @quorum/api-client
+# @quorum/api-client-auth
 
-API client library for Quorum. Provides a typed interface for all API endpoints and real-time SSE subscriptions.
+Auth API client library for Quorum. Provides a typed interface for authentication, identity, discovery, and server directory endpoints.
 
 ## Installation
 
@@ -8,10 +8,10 @@ This package is part of the Quorum monorepo and is automatically available to al
 
 ```bash
 # Build the client
-pnpm nx run api-client:build
+pnpm nx run api-client-auth:build
 
 # Watch mode
-pnpm nx run api-client:dev
+pnpm nx run api-client-auth:dev
 ```
 
 ## Usage
@@ -19,14 +19,14 @@ pnpm nx run api-client:dev
 ### Basic Setup
 
 ```typescript
-import { QuorumApiClient } from '@quorum/api-client';
+import { QuorumAuthClient } from "@quorum/api-client-auth";
 
-const client = new QuorumApiClient({
-  baseUrl: 'http://localhost:3000',
-  token: 'your-session-token', // Optional
+const client = new QuorumAuthClient({
+  baseUrl: "http://localhost:3000",
+  token: "your-session-token", // Optional
   onTokenChange: (token) => {
     // Save token to storage
-    localStorage.setItem('token', token || '');
+    localStorage.setItem("token", token || "");
   },
 });
 ```
@@ -36,16 +36,16 @@ const client = new QuorumApiClient({
 ```typescript
 // Sign up
 const { user, token } = await client.signup({
-  username: 'john',
-  email: 'john@example.com',
-  password: 'password123',
-  display_name: 'John Doe',
+  username: "john",
+  email: "john@example.com",
+  password: "password123",
+  display_name: "John Doe",
 });
 
 // Login
 const { user, token } = await client.login({
-  username_or_email: 'john',
-  password: 'password123',
+  username_or_email: "john",
+  password: "password123",
 });
 
 // Logout
@@ -55,7 +55,7 @@ await client.logout();
 const { user } = await client.getCurrentUser();
 
 // Validate token
-const { user } = await client.validateToken('token-here');
+const { user } = await client.validateToken("token-here");
 ```
 
 ### Servers
@@ -66,14 +66,14 @@ const { servers } = await client.getServers();
 
 // Create server
 const { server } = await client.createServer({
-  name: 'My Server',
-  description: 'A cool server',
+  name: "My Server",
+  description: "A cool server",
   is_public: false,
 });
 
 // Update server
 const { server } = await client.updateServer(1, {
-  name: 'Updated Name',
+  name: "Updated Name",
 });
 
 // Delete server
@@ -89,7 +89,7 @@ const { invite } = await client.createInvite(1, {
 });
 
 // Join with invite
-const { server, member } = await client.joinServerWithInvite('invite-code');
+const { server, member } = await client.joinServerWithInvite("invite-code");
 
 // Get public servers
 const { servers } = await client.getPublicServers();
@@ -109,13 +109,13 @@ const { rooms } = await client.getRooms(1);
 
 // Create room
 const { room } = await client.createRoom(1, {
-  name: 'General',
-  description: 'General discussion',
+  name: "General",
+  description: "General discussion",
 });
 
 // Update room
 const { room } = await client.updateRoom(1, {
-  name: 'Updated Room',
+  name: "Updated Room",
 });
 
 // Delete room
@@ -138,7 +138,7 @@ const result = await client.getMessages(1, {
 
 // Send message
 const { message } = await client.sendMessage(1, {
-  content: 'Hello, world!',
+  content: "Hello, world!",
   reply_to_message_id: 123, // Optional
 });
 
@@ -157,18 +157,18 @@ const { ai_members } = await client.getAIMembers(1);
 
 // Create AI member
 const { ai_member } = await client.createAIMember(1, {
-  name: 'GPT-4',
-  provider: 'openai',
-  model: 'gpt-4',
-  api_key: 'sk-...',
-  persona: 'A helpful assistant',
-  system_instructions: 'You are helpful',
+  name: "GPT-4",
+  provider: "openai",
+  model: "gpt-4",
+  api_key: "sk-...",
+  persona: "A helpful assistant",
+  system_instructions: "You are helpful",
 });
 
 // Update AI member
 const { ai_member } = await client.updateAIMember(1, {
-  name: 'GPT-4 Turbo',
-  model: 'gpt-4-turbo',
+  name: "GPT-4 Turbo",
+  model: "gpt-4-turbo",
 });
 
 // Delete AI member
@@ -182,20 +182,20 @@ await client.deleteAIMember(1);
 const unsubscribe = client.subscribeToRoom(
   1,
   (event) => {
-    console.log('Event:', event.type, event.data);
-    
+    console.log("Event:", event.type, event.data);
+
     switch (event.type) {
-      case 'message':
+      case "message":
         // Handle new message
         break;
-      case 'ai_response_chunk':
+      case "ai_response_chunk":
         // Handle AI response streaming
         break;
       // ... other event types
     }
   },
   (error) => {
-    console.error('SSE error:', error);
+    console.error("SSE error:", error);
   }
 );
 
@@ -205,10 +205,10 @@ unsubscribe();
 // Subscribe to all user updates
 const unsubscribeAll = client.subscribeToUpdates(
   (event) => {
-    console.log('Global event:', event.type, event.data);
+    console.log("Global event:", event.type, event.data);
   },
   (error) => {
-    console.error('SSE error:', error);
+    console.error("SSE error:", error);
   }
 );
 ```
@@ -236,11 +236,11 @@ const unsubscribeAll = client.subscribeToUpdates(
 ```typescript
 try {
   const { user } = await client.login({
-    username_or_email: 'john',
-    password: 'wrong-password',
+    username_or_email: "john",
+    password: "wrong-password",
   });
 } catch (error) {
-  console.error('Login failed:', error.message);
+  console.error("Login failed:", error.message);
 }
 ```
 
@@ -256,10 +256,9 @@ import type {
   Message,
   AIMember,
   SSEEvent,
-} from '@quorum/api-client';
+} from "@quorum/api-client-auth";
 ```
 
 ## License
 
 MIT
-

@@ -1,5 +1,5 @@
 {
-  "name": "@quorum/auth-client",
+  "name": "@quorum/api-client-auth",
   "version": "0.1.0",
   "description": "Client SDK for Quorum API Core (auth, identity, discovery)",
   "type": "module",

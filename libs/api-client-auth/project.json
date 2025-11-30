@@ -1,7 +1,7 @@
 {
-  "name": "auth-client",
+  "name": "api-client-auth",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/auth-client/src",
+  "sourceRoot": "libs/api-client-auth/src",
   "projectType": "library",
   "tags": [
     "npm:public",
@@ -19,7 +19,7 @@
       ],
       "options": {
         "command": "pnpm run build",
-        "cwd": "libs/auth-client"
+        "cwd": "libs/api-client-auth"
       },
       "dependsOn": [
         "^build"
@@ -29,7 +29,7 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "pnpm run dev",
-        "cwd": "libs/auth-client"
+        "cwd": "libs/api-client-auth"
       },
       "dependsOn": [
         "^build"
@@ -39,7 +39,7 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "pnpm run typecheck",
-        "cwd": "libs/auth-client"
+        "cwd": "libs/api-client-auth"
       }
     }
   }

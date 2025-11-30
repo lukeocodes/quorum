@@ -1,5 +1,5 @@
 /**
- * @quorum/auth-client
+ * @quorum/api-client-auth
  * 
  * Client SDK for Quorum API Core (auth, identity, discovery, server directory)
  */
