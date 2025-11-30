@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import { Button } from './primitives'
 import ChannelDetails from './ChannelDetails'
+import UserProfile from './UserProfile'
 
 export default function CollapsibleContextMenu() {
   const adapter = usePlatformAdapter()
@@ -21,7 +22,7 @@ export default function CollapsibleContextMenu() {
 
   const [isResizing, setIsResizing] = useState(false)
   const [isLoadingWidth, setIsLoadingWidth] = useState(true)
-  const MIN_WIDTH = 320
+  const MIN_WIDTH = 440
   const MAX_WIDTH = 600
   const saveWidthTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -154,11 +155,7 @@ export default function CollapsibleContextMenu() {
       case 'channel-details':
         return <ChannelDetails />
       case 'user-profile':
-        return (
-          <div className="p-6 text-text-tertiary">
-            User profile coming soon...
-          </div>
-        )
+        return <UserProfile />
       default:
         return null
     }
@@ -190,17 +187,19 @@ export default function CollapsibleContextMenu() {
       />
 
       {/* Header */}
-      <div className="h-16 flex items-center justify-between px-6 border-b border-border bg-white flex-shrink-0">
-        <h2 className="text-lg font-semibold text-text-primary">{getTitle()}</h2>
-        <Button
-          variant="unstyled"
-          size="icon"
-          onClick={closeContextMenu}
-          className="p-2 text-text-secondary hover:bg-subtle rounded-lg transition-colors"
-          title="Close panel"
-        >
-          <FontAwesomeIcon icon={faXmark} className="w-5 h-5" />
-        </Button>
+      <div className="bg-white border-b border-border flex-shrink-0">
+        <div className="h-16 flex items-center justify-between px-6">
+          <h2 className="text-lg font-semibold text-text-primary">{getTitle()}</h2>
+          <Button
+            variant="unstyled"
+            size="icon"
+            onClick={closeContextMenu}
+            className="p-2 text-text-secondary hover:bg-subtle rounded-lg transition-colors"
+            title="Close panel"
+          >
+            <FontAwesomeIcon icon={faXmark} className="w-5 h-5" />
+          </Button>
+        </div>
       </div>
 
       {/* Content */}

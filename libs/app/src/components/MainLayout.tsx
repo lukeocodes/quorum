@@ -7,7 +7,11 @@
 
 import { useEffect, useState, useRef } from "react";
 import { usePlatformAdapter } from "../adapters";
-import { useSessionStore, useChannelStore } from "../store/hooks";
+import {
+  useSessionStore,
+  useChannelStore,
+  useAppUIStore,
+} from "../store/hooks";
 import type { ChannelSection } from "../types";
 import AppSidebar from "./AppSidebar";
 import AppTopbar from "./AppTopbar";
@@ -23,9 +27,17 @@ export default function MainLayout() {
   const adapter = usePlatformAdapter();
   const sessionStore = useSessionStore();
   const channelStore = useChannelStore();
+  const uiStore = useAppUIStore();
   const { activeSession, servers, currentServer } = sessionStore();
   const { channels, currentChannel, loadChannels, selectChannel } =
     channelStore();
+  const {
+    contextMenuOpen,
+    contextMenuWidth,
+    serverColumnHidden,
+    setServerColumnHidden,
+    closeContextMenu,
+  } = uiStore();
 
   // Channel sections state
   const [sections, setSections] = useState<ChannelSection[]>([]);
@@ -38,10 +50,12 @@ export default function MainLayout() {
   const [serverColumnWidth, setServerColumnWidth] = useState(320);
   const [isResizing, setIsResizing] = useState(false);
   const [isLoadingWidth, setIsLoadingWidth] = useState(true);
+  const [serverWasVisibleBeforeContext, setServerWasVisibleBeforeContext] =
+    useState(false);
 
   // Layout constraints
   const APP_SIDEBAR_WIDTH = 80;
-  const SERVER_MIN_WIDTH = 240;
+  const SERVER_MIN_WIDTH = 320;
   const SERVER_MAX_WIDTH = 600;
   const CHANNEL_MIN_WIDTH = 700;
 
@@ -238,10 +252,14 @@ export default function MainLayout() {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing) return;
 
+      const availableWidth = window.innerWidth - APP_SIDEBAR_WIDTH;
+      const contextWidth = contextMenuOpen ? contextMenuWidth : 0;
+      const maxServerWidth = availableWidth - CHANNEL_MIN_WIDTH - contextWidth;
+
       const newWidth = e.clientX - APP_SIDEBAR_WIDTH;
       const constrainedWidth = Math.max(
         SERVER_MIN_WIDTH,
-        Math.min(newWidth, SERVER_MAX_WIDTH)
+        Math.min(newWidth, Math.min(SERVER_MAX_WIDTH, maxServerWidth))
       );
 
       setServerColumnWidth(constrainedWidth);
@@ -264,7 +282,65 @@ export default function MainLayout() {
       document.body.style.userSelect = "";
       document.body.style.cursor = "";
     };
-  }, [isResizing]);
+  }, [isResizing, contextMenuOpen, contextMenuWidth]);
+
+  // Smart column collapsing logic
+  useEffect(() => {
+    if (!currentServer) return;
+
+    const availableWidth = window.innerWidth - APP_SIDEBAR_WIDTH;
+
+    // When context menu opens, check if we need to collapse server
+    if (contextMenuOpen && !serverColumnHidden) {
+      const wouldBeChannelWidth =
+        availableWidth - serverColumnWidth - contextMenuWidth;
+
+      if (wouldBeChannelWidth < CHANNEL_MIN_WIDTH) {
+        // Server is visible and would cause channel to be too narrow
+        // Remember that server was visible before we hide it
+        setServerWasVisibleBeforeContext(true);
+        setServerColumnHidden(true);
+        // Early return to prevent the second effect from running
+        return;
+      }
+    }
+
+    // When server column becomes visible, check if we need to collapse context
+    // Only check if context is open and server is visible
+    if (!serverColumnHidden && contextMenuOpen) {
+      const wouldBeChannelWidth =
+        availableWidth - serverColumnWidth - contextMenuWidth;
+
+      if (wouldBeChannelWidth < CHANNEL_MIN_WIDTH) {
+        // Context is open and would cause channel to be too narrow
+        // Close context menu to make room for server
+        closeContextMenu();
+      }
+    }
+  }, [
+    contextMenuOpen,
+    contextMenuWidth,
+    serverColumnWidth,
+    serverColumnHidden,
+    currentServer,
+    closeContextMenu,
+  ]);
+
+  // When context menu closes, restore server if it was hidden for context
+  useEffect(() => {
+    if (
+      !contextMenuOpen &&
+      serverWasVisibleBeforeContext &&
+      serverColumnHidden
+    ) {
+      // Server was hidden because context opened, now restore it (unless mobile)
+      const isMobile = window.innerWidth < 768;
+      if (!isMobile) {
+        setServerColumnHidden(false);
+      }
+      setServerWasVisibleBeforeContext(false); // Reset flag
+    }
+  }, [contextMenuOpen, serverWasVisibleBeforeContext, serverColumnHidden]);
 
   const showEmptyState = !activeSession || servers.length === 0;
 
@@ -282,37 +358,39 @@ export default function MainLayout() {
         ) : currentServer ? (
           <>
             {/* Server column */}
-            <div
-              data-server-column
-              className="flex flex-col h-full overflow-hidden bg-navigation/95 border-r border-border-dark relative"
-              style={{
-                width: `${serverColumnWidth}px`,
-                minWidth: `${SERVER_MIN_WIDTH}px`,
-                maxWidth: `${SERVER_MAX_WIDTH}px`,
-                flexShrink: 0,
-              }}
-            >
-              {/* Server Header */}
-              <ServerTopbar />
-
-              {/* Server Sidebar with Channels */}
-              <ServerSidebar sections={sections} setSections={setSections} />
-
-              {/* Server Footer */}
-              <ServerFooter />
-
-              {/* Resize Handle */}
+            {!serverColumnHidden && (
               <div
-                className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-selected/50 transition-colors z-10 ${
-                  isResizing ? "bg-selected" : ""
-                }`}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  setIsResizing(true);
+                data-server-column
+                className="flex flex-col h-full overflow-hidden bg-navigation/95 border-r border-border-dark relative"
+                style={{
+                  width: `${serverColumnWidth}px`,
+                  minWidth: `${SERVER_MIN_WIDTH}px`,
+                  maxWidth: `${SERVER_MAX_WIDTH}px`,
+                  flexShrink: 0,
                 }}
-                title="Drag to resize"
-              />
-            </div>
+              >
+                {/* Server Header */}
+                <ServerTopbar />
+
+                {/* Server Sidebar with Channels */}
+                <ServerSidebar sections={sections} setSections={setSections} />
+
+                {/* Server Footer */}
+                <ServerFooter />
+
+                {/* Resize Handle */}
+                <div
+                  className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-selected/50 transition-colors z-10 ${
+                    isResizing ? "bg-selected" : ""
+                  }`}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setIsResizing(true);
+                  }}
+                  title="Drag to resize"
+                />
+              </div>
+            )}
 
             {/* Main content area */}
             <div

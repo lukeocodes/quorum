@@ -42,10 +42,12 @@ interface UIStoreActions {
 export type UIStore = UIState & UIStoreActions;
 
 // Default values
-const DEFAULT_CONTEXT_MENU_WIDTH = 400;
+const DEFAULT_CONTEXT_MENU_WIDTH = 440;
 const DEFAULT_SERVER_COLUMN_WIDTH = 320;
-const SERVER_MIN_WIDTH = 240;
+const SERVER_MIN_WIDTH = 320;
 const SERVER_MAX_WIDTH = 600;
+const CONTEXT_MIN_WIDTH = 440;
+const CONTEXT_MAX_WIDTH = 600;
 
 /**
  * Create a UI store with optional persistence configuration
@@ -69,7 +71,9 @@ export function createUIStore(config: UIStoreConfig = {}) {
     },
 
     setContextMenuWidth: (width: number) => {
-      set({ contextMenuWidth: width });
+      // Constrain to valid range
+      const constrainedWidth = Math.max(CONTEXT_MIN_WIDTH, Math.min(width, CONTEXT_MAX_WIDTH));
+      set({ contextMenuWidth: constrainedWidth });
     },
 
     setServerColumnWidth: (width: number) => {
