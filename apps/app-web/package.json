@@ -22,9 +22,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "astro": "^4.16.18",
-    "@astrojs/react": "^3.6.2",
-    "@astrojs/tailwind": "^5.1.4",
+    "astro": "catalog:",
+    "@astrojs/react": "catalog:",
+    "@astrojs/tailwind": "catalog:",
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@fortawesome/react-fontawesome": "^3.1.0",
@@ -36,16 +36,16 @@
     "@quorum/proto": "workspace:*",
     "@quorum/theme": "workspace:*",
     "@quorum/utils": "workspace:*",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "tailwindcss": "^3.4.18",
-    "zustand": "^5.0.2"
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "tailwindcss": "catalog:",
+    "zustand": "catalog:"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.4",
-    "@types/react": "^18.2.45",
-    "@types/react-dom": "^18.2.18",
-    "typescript": "^5.3.3"
+    "@astrojs/check": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:"
   }
 }
 

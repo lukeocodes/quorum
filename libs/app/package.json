@@ -49,8 +49,8 @@
     "@quorum/platform": "workspace:*",
     "@quorum/proto": "workspace:*",
     "@quorum/utils": "workspace:*",
-    "clsx": "^2.1.0",
-    "zustand": "^5.0.2"
+    "clsx": "catalog:",
+    "zustand": "catalog:"
   },
   "peerDependencies": {
     "react": "^18.0.0",
@@ -60,11 +60,11 @@
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@types/react": "^18.2.45",
-    "@types/react-dom": "^18.2.18",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "tsup": "^8.0.1",
-    "typescript": "^5.3.3"
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:"
   }
 }

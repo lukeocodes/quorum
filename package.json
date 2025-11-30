@@ -40,8 +40,8 @@
     "@nx/js": "^22.1.1",
     "@nx/vite": "^22.1.1",
     "@nx/workspace": "^22.1.1",
-    "dotenv": "^16.4.7",
+    "dotenv": "catalog:",
     "nx": "^22.1.1",
-    "pg": "^8.11.3"
+    "pg": "catalog:"
   }
 }
