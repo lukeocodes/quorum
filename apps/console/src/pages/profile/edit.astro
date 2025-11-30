@@ -1,0 +1,13 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { ProfileEdit } from "../components/ProfileEdit";
+
+const apiUrl = import.meta.env.PUBLIC_API_CORE_URL || 'http://localhost:3000';
+---
+
+<Layout title="Edit Profile - Quorum" showAccountSwitcher={true}>
+  <div class="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 py-12 px-4 sm:px-6 lg:px-8">
+    <ProfileEdit client:load apiUrl={apiUrl} />
+  </div>
+</Layout>
+
