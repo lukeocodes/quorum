@@ -66,7 +66,9 @@ function createWindow() {
 
   // Load the app
   if (process.env.NODE_ENV === "development" || !app.isPackaged) {
-    mainWindow.loadURL("http://localhost:5173");
+    const devHost = process.env.HOST || "localhost";
+    const devPort = process.env.PORT || "5173";
+    mainWindow.loadURL(`http://${devHost}:${devPort}`);
     mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
@@ -79,39 +81,41 @@ function createWindow() {
   });
 }
 
-// Register custom protocol handler
-if (process.defaultApp) {
-  if (process.argv.length >= 2) {
-    app.setAsDefaultProtocolClient("quorum", process.execPath, [
-      path.resolve(process.argv[1]),
-    ]);
-  }
-} else {
-  app.setAsDefaultProtocolClient("quorum");
-}
+// Electron APIs are only available when running in Electron context
+if (app) {
+  const gotTheLock = app.requestSingleInstanceLock();
 
-const gotTheLock = app.requestSingleInstanceLock();
+  if (!gotTheLock) {
+    app.quit();
+  } else {
+    app.on("second-instance", (event, commandLine, workingDirectory) => {
+      // Someone tried to run a second instance
+      // Focus the main window and handle any protocol URLs
+      if (mainWindow) {
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        mainWindow.focus();
+      }
 
-if (!gotTheLock) {
-  app.quit();
-} else {
-  app.on("second-instance", (event, commandLine, workingDirectory) => {
-    // Someone tried to run a second instance
-    // Focus the main window and handle any protocol URLs
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.focus();
-    }
+      // Handle protocol on second instance
+      const url = commandLine.find((arg) => arg.startsWith("quorum://"));
+      if (url) {
+        handleProtocolUrl(url);
+      }
+    });
 
-    // Handle protocol on second instance
-    const url = commandLine.find((arg) => arg.startsWith("quorum://"));
-    if (url) {
-      handleProtocolUrl(url);
-    }
-  });
-
-  app.whenReady().then(async () => {
+    app.whenReady().then(async () => {
     try {
+      // Register custom protocol handler
+      if (process.defaultApp) {
+        if (process.argv.length >= 2) {
+          app.setAsDefaultProtocolClient("quorum", process.execPath, [
+            path.resolve(process.argv[1]),
+          ]);
+        }
+      } else {
+        app.setAsDefaultProtocolClient("quorum");
+      }
+
       // Initialize database
       console.log("Initializing session database...");
       initializeDatabase();
@@ -137,16 +141,15 @@ if (!gotTheLock) {
       console.error("Error during app initialization:", error);
     }
   });
-}
 
-// Handle protocol URLs on macOS
-app.on("open-url", (event, url) => {
-  event.preventDefault();
-  console.log("Received protocol URL (open-url):", url);
-  handleProtocolUrl(url);
-});
+  // Handle protocol URLs on macOS
+  app.on("open-url", (event, url) => {
+    event.preventDefault();
+    console.log("Received protocol URL (open-url):", url);
+    handleProtocolUrl(url);
+  });
 
-// Handle protocol URLs on Windows/Linux via command line
+  // Handle protocol URLs on Windows/Linux via command line
 if (process.platform !== "darwin") {
   const protocolUrl = process.argv.find((arg) => arg.startsWith("quorum://"));
   if (protocolUrl) {
@@ -426,8 +429,8 @@ function setupIpcHandlers() {
   // Open add server flow
   ipcMain.handle("servers:open-add-flow", async () => {
     try {
-      const WEB_APP_URL = process.env.VITE_WEB_APP_URL || "http://localhost:4321";
-      shell.openExternal(`${WEB_APP_URL}/servers`);
+      const CONSOLE_URL = process.env.PUBLIC_CONSOLE_URL || "http://localhost:4321";
+      shell.openExternal(`${CONSOLE_URL}/servers`);
       return { success: true };
     } catch (error) {
       console.error("Error opening add server flow:", error);

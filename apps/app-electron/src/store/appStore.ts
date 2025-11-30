@@ -131,8 +131,8 @@ interface AppState {
 // api-core: auth, servers, discovery (port 3000)
 // api-server: channels, messages, ai, sse (port 3001)
 // Note: In the future, api-server URL may vary per quorum server
-const API_CORE_URL = 'http://localhost:3000'
-const API_SERVER_URL = 'http://localhost:3001'
+const API_CORE_URL = import.meta.env.PUBLIC_API_CORE_URL || 'http://localhost:3000'
+const API_SERVER_URL = import.meta.env.PUBLIC_API_SERVER_URL || 'http://localhost:3001'
 
 // Helper function to get API credentials for the current server
 function getApiCredentials(state: AppState): { apiUrl: string; serverApiUrl: string; authToken: string } | null {

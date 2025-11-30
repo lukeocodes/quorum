@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAppStore } from '../store/appStore'
-import { Button } from '@quorum/ui'
+import { Button } from '@quorum/app'
 
 interface CreateChannelModalProps {
   onClose: () => void

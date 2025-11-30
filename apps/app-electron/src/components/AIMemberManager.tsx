@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useAppStore } from '../store/appStore'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons'
-import { Button } from '@quorum/ui'
+import { Button } from '@quorum/app'
 
 interface AIMemberManagerProps {
   onClose: () => void

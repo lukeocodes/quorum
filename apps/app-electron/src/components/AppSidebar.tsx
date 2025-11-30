@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Server } from '../types/electron';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faPencil, faTrash, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
-import { Button } from '@quorum/ui';
+import { Button } from '@quorum/app';
 import clsx from 'clsx';
 import { useAppStore } from '../store/appStore';
 import {

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button } from '@quorum/ui'
+import { Button } from '@quorum/app'
 
 interface CreateSectionModalProps {
   onClose: () => void

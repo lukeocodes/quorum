@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { useAppStore } from '../store/appStore'
-import { Button } from '@quorum/ui'
+import { Button } from '@quorum/app'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCog, faChevronDown, faPencil, faRightFromBracket } from '@fortawesome/free-solid-svg-icons'
 import ContextMenu, { ContextMenuItem } from './ContextMenu'

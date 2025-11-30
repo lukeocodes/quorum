@@ -23,7 +23,9 @@ function createWindow() {
 
   // Load the app
   if (process.env.NODE_ENV === "development" || !app.isPackaged) {
-    mainWindow.loadURL("http://localhost:5173");
+    const devHost = process.env.HOST || "localhost";
+    const devPort = process.env.PORT || "5173";
+    mainWindow.loadURL(`http://${devHost}:${devPort}`);
     mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
@@ -336,8 +338,8 @@ function setupIpcHandlers() {
   // Open add server flow
   ipcMain.handle("servers:open-add-flow", async () => {
     try {
-      const WEB_APP_URL = process.env.VITE_WEB_APP_URL || "http://localhost:4321";
-      shell.openExternal(`${WEB_APP_URL}/servers`);
+      const CONSOLE_URL = process.env.PUBLIC_CONSOLE_URL || "http://localhost:4321";
+      shell.openExternal(`${CONSOLE_URL}/servers`);
       return { success: true };
     } catch (error) {
       console.error("Error opening add server flow:", error);

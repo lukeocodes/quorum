@@ -4,9 +4,9 @@ import {
   faUserPlus,
   faExternalLinkAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import { Button } from "@quorum/ui";
+import { Button } from "@quorum/app";
 
-const WEB_APP_URL = import.meta.env.VITE_WEB_APP_URL || "http://localhost:4321";
+const CONSOLE_URL = import.meta.env.PUBLIC_CONSOLE_URL || "http://localhost:4321";
 
 export const AuthScreen = () => {
   const handleLogin = () => {

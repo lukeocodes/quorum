@@ -10,7 +10,9 @@ export default defineConfig({
         },
     },
     base: './',
+    envPrefix: 'PUBLIC_',
     server: {
-        port: 5173,
+        host: process.env.HOST || 'localhost',
+        port: parseInt(process.env.PORT || '5173', 10),
     },
 })

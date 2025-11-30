@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
-import { Button } from '@quorum/ui'
+import { Button } from '@quorum/app'
 
 const { electronAPI } = window
 

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useAppStore } from '../store/appStore'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane, faMicrophone, faXmark } from '@fortawesome/free-solid-svg-icons'
-import { Button } from '@quorum/ui'
+import { Button } from '@quorum/app'
 
 interface MessageInputProps {
   replyTo: any | null

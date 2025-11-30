@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useAppStore } from '../store/appStore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers, faFileLines, faEllipsisVertical, faPencil, faTrash, faCopy, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import { Button } from '@quorum/ui';
+import { Button } from '@quorum/app';
 import AIMemberManager from './AIMemberManager';
 import ContextMenu, { ContextMenuItem } from './ContextMenu';
 
